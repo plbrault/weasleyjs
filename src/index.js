@@ -1,9 +1,12 @@
+import copy from 'shallow-copy';
+
 export default class Weasley {
   constructor() {
     this.resolvers = {};
     this.moduleProxies = {};
     this.functionModules = {};
     this.container = {};
+    this.snapshots = [];
   }
 
   updateModuleProxy(key) {
@@ -53,5 +56,17 @@ export default class Weasley {
         get: () => this.moduleProxies[key] || this.updateModuleProxy(key),
       });
     }
+  }
+
+  snapshot() {
+    const snapshot = copy(this.resolvers);
+    this.snapshots.push(snapshot);
+  }
+
+  revert() {
+    this.resolvers = this.snapshots.pop() || {};
+    this.moduleProxies = {};
+    this.functionModules = {};
+    this.container = {};
   }
 }

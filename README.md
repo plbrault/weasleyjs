@@ -17,7 +17,7 @@ npm install weasley
 
 ## Usage
 
-In your own `weasley.js` module:
+Create a `weasley.js` module:
 
 ```
 import Weasley from 'weasley';
@@ -30,7 +30,7 @@ weasley.register('my.boring.dependency', () => require('boringDependency'));
 weasley.register('my.awesome.module', () => require('./awesomeModule.js'));
 ```
 
-In another module (e.g. `awesomeModule.js`):
+Import from another module (e.g. `awesomeModule.js`):
 
 ```
 import weasley from './weasley.js';
@@ -44,26 +44,37 @@ export default () => {
 }
 ```
 
-In a unit test:
+In a unit test (example using MochaJS and SinonJS):
 
 ```
-import awesomeModule from './awesomeModule.js'; // Import module to be tested
+import awesomeModule from './awesomeModule.js'; // The module to be tested
 import weasley from './weasley.js';
 
 const myAwesomeMock = {
-  doSomethingAwesome: function () {
-    // Pretend to do something awesome
-  }
+  doSomethingAwesome: sinon.spy(),
 };
 
-describe('lib/Logger', function () {
-  beforeEach(function () {
-    // And kids... that's how you inject your mocked dependency!
-    weasley.register('my.awesome.dependency', myAwesomeMock);
+describe('awesomeModule', function () {
+  before(function () {
+    // Take a snapshot of the current configuration
+    weasley.snapshot();
+    // Override dependency with mock
+    weasley.register('my.awesome.dependency', () => consoleMock);
   });
 
-  // Tests go here
-}
+  it('should do something awesome') {
+    // ...
+  } 
+
+  afterEach(function () {
+    consoleMock.log.reset();
+  });
+
+  after(function () {
+    // Reset configuration to snapshot
+    weasley.revert();
+  })
+});
 ```
 
 

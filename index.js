@@ -1,6 +1,6 @@
 'use strict';
 
-class Weasley {
+export default class Weasley {
   constructor() {
     this.resolvers = {};
     this.modules = {};

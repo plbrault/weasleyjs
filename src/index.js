@@ -23,10 +23,15 @@ export default class Weasley {
         if (!obj.hasOwnProperty(part)) {
           Object.defineProperty(obj, part, {
             get: () => {
-              return this.modules[key] || (
-                (this.modules[key] = this.resolvers[key]())
-                || this.modules[key]
-              );
+              return this.modules[key] || 
+                (() => {
+                  let module = this.resolvers[key]();
+                  if (module.default && !doNotUseDefault) {
+                    module = module.default;
+                  }
+                  this.modules[key] = module;
+                  return module;
+                })();
             }
           });
         }

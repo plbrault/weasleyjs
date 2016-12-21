@@ -2,6 +2,7 @@ export default class Weasley {
   constructor() {
     this.resolvers = {};
     this.moduleProxies = {};
+    this.functionModules = {};
     this.container = {};
   }
 
@@ -12,13 +13,22 @@ export default class Weasley {
       module = module.default;
     }
 
-    const moduleProxy = this.moduleProxies[key] || {};
-    for (let attr in moduleProxy) {
-      if (moduleProxy.hasOwnProperty(attr)) {
-        delete moduleProxy[attr];
+    let moduleProxy;
+    if (typeof module === 'function') {
+      const functionModules = this.functionModules;
+      functionModules[key] = module;
+      moduleProxy = this.moduleProxies[key] || (function proxy(...args) {
+        return functionModules[key](...args);
+      });
+    } else if (typeof module === 'object') {
+      moduleProxy = this.moduleProxies[key] || {};
+      for (const attr in moduleProxy) {
+        if (moduleProxy.hasOwnProperty(attr)) {
+          delete moduleProxy[attr];
+        }
       }
+      Object.assign(moduleProxy, module);
     }
-    Object.assign(moduleProxy, module);
 
     this.moduleProxies[key] = moduleProxy;
     return moduleProxy;

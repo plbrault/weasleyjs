@@ -3,7 +3,7 @@ module.exports = {
   plugins: [
   ],
   rules: {
-    'react/jsx-filename-extension': 'off',
-    'react/prefer-stateless-function': 'off',
+    'no-restricted-syntax': 'off',
+    'no-prototype-builtins': 'off',
   }
 };

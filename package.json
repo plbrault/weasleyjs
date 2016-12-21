@@ -1,0 +1,23 @@
+{
+  "name": "weasley",
+  "version": "0.1.0",
+  "description": "A tremendously simple dependency injection container for JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plbrault/weasleyjs.git"
+  },
+  "keywords": [
+    "dependency",
+    "injection"
+  ],
+  "author": "Pier-Luc Brault <plbrault@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plbrault/weasleyjs/issues"
+  },
+  "homepage": "https://github.com/plbrault/weasleyjs#readme"
+}

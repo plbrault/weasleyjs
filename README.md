@@ -14,9 +14,6 @@ This is a work in progress. It is recommended not to use it in production for no
 npm install weasley
 ```
 
-Currently, this package only supports projects that have Babel set up for ES6 functionnality. 
-I will not apologize, because as I already mentioned, it is a work in progress.
-
 
 ## Usage
 
@@ -65,6 +62,7 @@ import awesomeModule from './awesomeModule.js'; // Import module to be tested
 
 // Tests go here
 ```
+
 
 ## License
 

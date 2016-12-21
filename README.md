@@ -1,9 +1,9 @@
 WeasleyJS
 =================================================================================================
 
-A JavaScript dependency injection container so tremendously simple, it might actually not deserve
-to be called a dependency injection container. It is more like a runtime dependency resolver, 
-actually. Its primary use-case is to make everything easily mockable for testing purposes. 
+This is a JavaScript dependency injection container so tremendously simple, it might actually not
+deserve to be called a dependency injection container. It is more like a runtime dependency resolver.
+Its primary use-case is to make everything easily mockable for testing purposes. 
 
 This is a work in progress. It is recommended not to use it in production for now.
 

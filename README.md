@@ -47,6 +47,7 @@ export default () => {
 In a unit test:
 
 ```
+import awesomeModule from './awesomeModule.js'; // Import module to be tested
 import weasley from './weasley.js';
 
 const myAwesomeMock = {
@@ -55,12 +56,14 @@ const myAwesomeMock = {
   }
 };
 
-// And kids... that's how you inject your mocked dependency!
-weasley.register('my.awesome.dependency', myAwesomeMock);
+describe('lib/Logger', function () {
+  beforeEach(function () {
+    // And kids... that's how you inject your mocked dependency!
+    weasley.register('my.awesome.dependency', myAwesomeMock);
+  });
 
-import awesomeModule from './awesomeModule.js'; // Import module to be tested
-
-// Tests go here
+  // Tests go here
+}
 ```
 
 

@@ -35,8 +35,8 @@ Import from another module (e.g. `awesomeModule.js`):
 ```
 import weasley from './weasley.js';
 
-const awesomeDependency = weasley.container.my.awesome.dependency;
-const boringDependency = weasley.container.my.boring.dependency;
+const awesomeDependency = weasley.container.my.awesome.dependency();
+const boringDependency = weasley.container.my.boring.dependency();
 
 export default () => {
   awesomeDependency.doSomethingAwesome();

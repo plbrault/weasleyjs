@@ -5,7 +5,8 @@ This is a JavaScript dependency injection container so tremendously simple, it m
 deserve to be called a dependency injection container. It is more like a runtime dependency resolver.
 Its primary use-case is to make everything easily mockable for testing purposes. 
 
-This is a work in progress. It is recommended not to use it in production for now.
+This is a work in progress, and might still contain a few bugs. Be aware that future releases might
+not follow strict [semver](http://semver.org/) until version `1.0.0` is reached.
 
 
 ## Setup
@@ -35,8 +36,8 @@ Import from another module (e.g. `awesomeModule.js`):
 ```
 import weasley from './weasley.js';
 
-const awesomeDependency = weasley.container.my.awesome.dependency();
-const boringDependency = weasley.container.my.boring.dependency();
+const awesomeDependency = weasley.container.my.awesome.dependency;
+const boringDependency = weasley.container.my.boring.dependency;
 
 export default () => {
   awesomeDependency.doSomethingAwesome();
@@ -56,8 +57,6 @@ const myAwesomeMock = {
 
 describe('awesomeModule', function () {
   before(function () {
-    // Take a snapshot of the current configuration
-    weasley.snapshot();
     // Override dependency with mock
     weasley.register('my.awesome.dependency', () => consoleMock);
   });
@@ -69,12 +68,20 @@ describe('awesomeModule', function () {
   afterEach(function () {
     consoleMock.log.reset();
   });
-
-  after(function () {
-    // Reset configuration to snapshot
-    weasley.revert();
-  })
 });
+```
+
+### Calling `new`
+
+If you have to call the `new` operator on a dependency imported by Weasley, add `.new` at the end
+of the imported object:
+
+```
+import weasley from './weasley.js';
+
+const amazingDependency = weasley.container.my.amazing.dependency.new;
+
+const amazingObject = new amazingDependency();
 ```
 
 

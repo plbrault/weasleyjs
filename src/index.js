@@ -4,7 +4,6 @@ export default class Weasley {
   constructor() {
     this.resolvers = {};
     this.moduleProxies = {};
-    this.moduleProxyGetters = {};
     this.functionModules = {};
     this.container = {};
     this.snapshots = [];
@@ -18,14 +17,15 @@ export default class Weasley {
     }
 
     let moduleProxy;
-    let moduleProxyGetter;
     if (typeof module === 'function') {
       const functionModules = this.functionModules;
       functionModules[key] = module;
-      moduleProxy = this.moduleProxies[key] || (function proxy() {
-        return functionModules[key];
+      moduleProxy = this.moduleProxies[key] || (function proxy(...args) {
+        return functionModules[key](...args);
       });
-      moduleProxyGetter = moduleProxy;
+      moduleProxy.new = function (...args) {
+        return new functionModules[key](...args);
+      };
     } else if (typeof module === 'object') {
       moduleProxy = this.moduleProxies[key] || {};
       for (const attr in moduleProxy) {
@@ -34,12 +34,10 @@ export default class Weasley {
         }
       }
       Object.assign(moduleProxy, module);
-      moduleProxyGetter = this.moduleProxyGetters[key] || (() => moduleProxy);
     }
 
     this.moduleProxies[key] = moduleProxy;
-    this.moduleProxyGetters[key] = moduleProxyGetter;
-    return moduleProxyGetter;
+    return moduleProxy;
   }
 
   register(key, resolver, doNotUseDefault) {
@@ -58,7 +56,7 @@ export default class Weasley {
       }
 
       Object.defineProperty(container, parts[parts.length - 1], {
-        get: () => (this.moduleProxyGetters[key] || this.updateModuleProxy(key)),
+        get: () => (this.moduleProxies[key] || this.updateModuleProxy(key)),
       });
     }
   }

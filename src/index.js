@@ -20,8 +20,8 @@ export default class Weasley {
     if (typeof module === 'function') {
       const functionModules = this.functionModules;
       functionModules[key] = module;
-      moduleProxy = this.moduleProxies[key] || (function proxy(...args) {
-        return functionModules[key](...args);
+      moduleProxy = this.moduleProxies[key] || (function proxy() {
+        return functionModules[key];
       });
     } else if (typeof module === 'object') {
       moduleProxy = this.moduleProxies[key] || {};
@@ -53,7 +53,7 @@ export default class Weasley {
       }
 
       Object.defineProperty(container, parts[parts.length - 1], {
-        get: () => this.moduleProxies[key] || this.updateModuleProxy(key),
+        get: () => (this.moduleProxies[key] || this.updateModuleProxy(key)),
       });
     }
   }

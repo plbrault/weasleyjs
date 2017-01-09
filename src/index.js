@@ -51,7 +51,9 @@ export default class Weasley {
 
       for (let i = 0; i < parts.length - 1; i += 1) {
         const part = parts[i];
-        container[part] = {};
+        if (!container[part]) {
+          container[part] = {};
+        }
         container = container[part];
       }
 

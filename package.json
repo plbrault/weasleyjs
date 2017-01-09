@@ -1,6 +1,6 @@
 {
   "name": "weasley",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A tremendously simple dependency injection container for JavaScript",
   "main": "lib/index.js",
   "scripts": {

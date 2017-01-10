@@ -23,7 +23,7 @@ export default class Weasley {
       moduleProxy = this.moduleProxies[key] || (function proxy(...args) {
         return functionModules[key](...args);
       });
-      moduleProxy.new = function (...args) {
+      moduleProxy.new = function newProxy(...args) {
         return new functionModules[key](...args);
       };
     } else if (typeof module === 'object') {

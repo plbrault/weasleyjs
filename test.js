@@ -161,3 +161,29 @@ it('should keep old references up to date when an object dependency is overriden
     expect(albus[key]).to.be.equal(altSampleObj[key]);
   });
 });
+
+it('should be possible to register two object dependencies under different subkeys of a same key', function () {
+  const weasley = new Weasley();
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rules', () => sampleObj);
+
+  const albusRules = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
+  Object.keys(sampleObj).forEach(function (key) {
+    expect(albusRules[key]).to.be.equal(sampleObj[key]);
+  });
+
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rocks', () => altSampleObj);
+  const albusRocks = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
+  Object.keys(altSampleObj).forEach(function (key) {
+    expect(albusRocks[key]).to.be.equal(altSampleObj[key]);
+  });
+
+  const albusRulesAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
+  Object.keys(sampleObj).forEach(function (key) {
+    expect(albusRulesAgain[key]).to.be.equal(sampleObj[key]);
+  });
+
+  const albusRocksAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
+  Object.keys(altSampleObj).forEach(function (key) {
+    expect(albusRocksAgain[key]).to.be.equal(altSampleObj[key]);
+  });
+});

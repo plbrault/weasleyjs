@@ -2,3 +2,4 @@ src/
 .babelrc
 .eslintrc.js
 .gitignore
+test.js

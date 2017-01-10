@@ -6,36 +6,44 @@ import chai, { expect } from 'chai';
 
 import Weasley from './src';
 
-const sampleObj = {
-  Gryffindor: 'lion',
-  Hufflepuff: 'badger',
-  Ravenclaw: 'eagle',
-  Slytherin: 'snake',
-};
-
-function sampleFuncWithoutParams() {
-  return 'horcruxes';
-}
-
-function sampleFuncWithParams(harry, ron, hermione) {
-  return `${harry}${ron}${hermione}`;
-}
-
-class sampleClassWithoutConstructorParams {
-  constructor() {
-    this.YouKnowWho = 'Lord Voldemort';
-  }
-}
-
-class sampleClassWithConstructorParams {
-  constructor(draco, vincent, gregory) {
-    this.draco = draco;
-    this.vincent = vincent;
-    this.gregory = gregory;
-  }
-}
+let sampleObj;
+let sampleFuncWithoutParams;
+let sampleFuncWithParams;
+let sampleClassWithoutConstructorParams;
+let sampleClassWithConstructorParams;
 
 describe('Weasley', function () {
+  beforeEach(function () {
+    sampleObj = {
+      Gryffindor: 'lion',
+      Hufflepuff: 'badger',
+      Ravenclaw: 'eagle',
+      Slytherin: 'snake',
+    };
+
+    sampleFuncWithoutParams = function () {
+      return 'horcruxes';
+    };
+
+    sampleFuncWithParams = function (harry, ron, hermione) {
+      return `${harry}${ron}${hermione}`;
+    };
+
+    sampleClassWithoutConstructorParams = class {
+      constructor() {
+        this.YouKnowWho = 'Lord Voldemort';
+      }
+    };
+
+    sampleClassWithConstructorParams = class {
+      constructor(draco, vincent, gregory) {
+        this.draco = draco;
+        this.vincent = vincent;
+        this.gregory = gregory;
+      }
+    };
+  });
+
   it('should properly register an object dependency under a single-level key', function () {
     const weasley = new Weasley();
     weasley.register('Albus', () => sampleObj);

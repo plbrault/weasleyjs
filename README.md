@@ -87,4 +87,4 @@ const amazingObject = new amazingDependency();
 
 ## License
 
-MIT.
+[MIT](https://github.com/plbrault/weasleyjs/blob/master/LICENSE)

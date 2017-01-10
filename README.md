@@ -3,7 +3,7 @@ WeasleyJS
 
 This is a JavaScript dependency injection container so tremendously simple, it might actually not
 deserve to be called a dependency injection container. It is more like a runtime dependency resolver.
-Its primary use-case is to make everything easily mockable for testing purposes. 
+A possible use-case is to make everything easily mockable for testing purposes. 
 
 This is a work in progress, and might still contain a few bugs. Be aware that future releases might
 not follow strict [semver](http://semver.org/) until version `1.0.0` is reached.

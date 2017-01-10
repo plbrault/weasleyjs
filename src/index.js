@@ -4,6 +4,7 @@ export default class Weasley {
   constructor() {
     this.resolvers = {};
     this.moduleProxies = {};
+    this.objectModules = {};
     this.functionModules = {};
     this.container = {};
     this.snapshots = [];
@@ -23,17 +24,21 @@ export default class Weasley {
       moduleProxy = this.moduleProxies[key] || (function proxy(...args) {
         return functionModules[key](...args);
       });
-      moduleProxy.new = function (...args) {
+      moduleProxy.new = function newProxy(...args) {
         return new functionModules[key](...args);
       };
     } else if (typeof module === 'object') {
-      moduleProxy = this.moduleProxies[key] || {};
-      for (const attr in moduleProxy) {
-        if (moduleProxy.hasOwnProperty(attr)) {
-          delete moduleProxy[attr];
-        }
-      }
-      Object.assign(moduleProxy, module);
+      const objectModules = this.objectModules;
+      objectModules[key] = module;
+      moduleProxy = this.moduleProxies[key] || new Proxy({ key }, {
+        get(moduleRef, name) {
+          return objectModules[moduleRef.key][name];
+        },
+        set(moduleRef, name, value) {
+          objectModules[moduleRef.key][name] = value;
+          return true;
+        },
+      });
     }
 
     this.moduleProxies[key] = moduleProxy;

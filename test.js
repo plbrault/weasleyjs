@@ -6,6 +6,7 @@ import chai, { expect } from 'chai';
 
 import Weasley from './src';
 
+let altSampleObj;
 let sampleObj;
 let sampleFuncWithoutParams;
 let sampleFuncWithParams;
@@ -19,6 +20,13 @@ beforeEach(function () {
     Ravenclaw: 'eagle',
     Slytherin: 'snake',
   };
+
+  altSampleObj = {
+    Gryffindor: 'red and ore',
+    Hufflepuff: 'yellow and black',
+    Ravenclaw: 'blue and bronze',
+    Slytherin: 'green and silver',
+  };  
 
   sampleFuncWithoutParams = function () {
     return 'horcruxes';
@@ -102,4 +110,54 @@ it('should be possible to add an attribute to an object dependency', function ()
   expect(albus2.password).to.equal('Caput Draconis');
 
   expect(sampleObj.password).to.equal('Caput Draconis');
+});
+
+it('should be possible to override an object dependency under a single-level key', function () {
+  const weasley = new Weasley();
+  weasley.register('Albus', () => sampleObj);
+
+  const albus1 = weasley.container.Albus;
+  Object.keys(sampleObj).forEach(function (key) {
+    expect(albus1[key]).to.be.equal(sampleObj[key]);
+  });
+
+  weasley.register('Albus', () => altSampleObj);
+
+  const albus2 = weasley.container.Albus;
+  Object.keys(altSampleObj).forEach(function (key) {
+    expect(albus2[key]).to.be.equal(altSampleObj[key]);
+  });
+});
+
+it('should be possible to override an object dependency under a multiple-level key', function () {
+  const weasley = new Weasley();
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
+
+  const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+  Object.keys(sampleObj).forEach(function (key) {
+    expect(albus1[key]).to.be.equal(sampleObj[key]);
+  });
+
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => altSampleObj);
+
+  const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+  Object.keys(altSampleObj).forEach(function (key) {
+    expect(albus2[key]).to.be.equal(altSampleObj[key]);
+  });
+});
+
+it('should keep old references up to date when an object dependency is overriden', function () {
+  const weasley = new Weasley();
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
+
+  const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+  Object.keys(sampleObj).forEach(function (key) {
+    expect(albus[key]).to.be.equal(sampleObj[key]);
+  });
+
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => altSampleObj);
+
+  Object.keys(altSampleObj).forEach(function (key) {
+    expect(albus[key]).to.be.equal(altSampleObj[key]);
+  });
 });

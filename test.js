@@ -91,3 +91,15 @@ it('should be possible to alter an attribute from an object dependency', functio
   expect(sampleObj.Ravenclaw).to.equal('Why not a raven?');
 });
 
+it('should be possible to add an attribute to an object dependency', function () {
+  const weasley = new Weasley();
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
+
+  const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+  albus1.password = 'Caput Draconis';
+
+  const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+  expect(albus2.password).to.equal('Caput Draconis');
+
+  expect(sampleObj.password).to.equal('Caput Draconis');
+});

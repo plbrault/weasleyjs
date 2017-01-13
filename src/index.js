@@ -46,9 +46,10 @@ export default class Weasley {
   }
 
   register(key, resolver, doNotUseDefault) {
+    const oldResolver = this.resolvers[key];
     this.resolvers[key] = { resolver, doNotUseDefault };
 
-    if (this.moduleProxies[key]) {
+    if (oldResolver) {
       this.updateModuleProxy(key);
     } else {
       const parts = key.split('.');

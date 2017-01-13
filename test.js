@@ -162,6 +162,18 @@ it('should keep old references up to date when an object dependency is overriden
   });
 });
 
+it('should be possible to override an object dependency before its first use', function () {
+  const weasley = new Weasley();
+
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => ({}));
+  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
+
+  const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+  Object.keys(altSampleObj).forEach(function (key) {
+    expect(albus[key]).to.be.equal(sampleObj[key]);
+  });
+});
+
 it('should be possible to register two object dependencies under different subkeys of a same key', function () {
   const weasley = new Weasley();
   weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rules', () => sampleObj);

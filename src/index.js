@@ -1,8 +1,5 @@
 import copy from 'shallow-copy';
-
-if (!Proxy) {
-  require('proxy-polyfill'); // eslint-disable-line global-require
-}
+import * as proxyPolyfill from 'proxy-polyfill'; // eslint-disable-line no-unused-vars
 
 export default class Weasley {
   constructor() {

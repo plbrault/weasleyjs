@@ -1,5 +1,9 @@
 import copy from 'shallow-copy';
 
+if (!Proxy) {
+  require('proxy-polyfill'); // eslint-disable-line global-require
+}
+
 export default class Weasley {
   constructor() {
     this.resolvers = {};

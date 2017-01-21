@@ -1,83 +1,45 @@
-import copy from 'shallow-copy';
+class WeasleyContainer {
+  addChild(key, resolver, useDefaultExport) {
+    let keyParts = key;
+    if (typeof keyParts === 'string') {
+      keyParts = keyParts.split('.');
+    }
+
+    const childKey = keyParts.shift();
+    if (keyParts.length > 0) {
+      if (this[childKey] && this[childKey].constructor.name !== this.constructor.name) {
+        throw new Error('Cannot register new dependency as a child of an existing dependency');
+      }
+      this[childKey] = this[childKey] || new WeasleyContainer();
+      this[childKey].addChild(keyParts, resolver);
+    } else {
+      if (this[childKey] && this[childKey].constructor.name === this.constructor.name) {
+        throw new Error('Cannot override existing container with dependency');
+      }
+      Object.defineProperty(this, childKey, {
+        configurable: true,
+        get: () => {
+          let module = resolver();
+          if (module.default && useDefaultExport) {
+            module = module.default;
+          }
+          Object.defineProperty(this, childKey, {
+            configurable: true,
+            value: module,
+          });
+          return module;
+        },
+      });
+    }
+  }
+}
 
 export default class Weasley {
   constructor() {
-    this.resolvers = {};
-    this.moduleProxies = {};
-    this.objectModules = {};
-    this.functionModules = {};
-    this.container = {};
-    this.snapshots = [];
+    this.container = new WeasleyContainer();
   }
 
-  updateModuleProxy(key) {
-    const { resolver, doNotUseDefault } = this.resolvers[key];
-    let module = resolver();
-    if (module.default && !doNotUseDefault) {
-      module = module.default;
-    }
-
-    let moduleProxy;
-    if (typeof module === 'function') {
-      const functionModules = this.functionModules;
-      functionModules[key] = module;
-      moduleProxy = this.moduleProxies[key] || (function proxy(...args) {
-        return functionModules[key](...args);
-      });
-      moduleProxy.new = function newProxy(...args) {
-        return new functionModules[key](...args);
-      };
-    } else if (typeof module === 'object') {
-      const objectModules = this.objectModules;
-      objectModules[key] = module;
-      moduleProxy = this.moduleProxies[key] || new Proxy({ key }, {
-        get(moduleRef, name) {
-          return objectModules[moduleRef.key][name];
-        },
-        set(moduleRef, name, value) {
-          objectModules[moduleRef.key][name] = value;
-          return true;
-        },
-      });
-    }
-
-    this.moduleProxies[key] = moduleProxy;
-    return moduleProxy;
-  }
-
-  register(key, resolver, doNotUseDefault) {
-    const oldResolver = this.resolvers[key];
-    this.resolvers[key] = { resolver, doNotUseDefault };
-
-    if (oldResolver) {
-      this.updateModuleProxy(key);
-    } else {
-      const parts = key.split('.');
-      let container = this.container;
-
-      for (let i = 0; i < parts.length - 1; i += 1) {
-        const part = parts[i];
-        if (!container[part]) {
-          container[part] = {};
-        }
-        container = container[part];
-      }
-
-      Object.defineProperty(container, parts[parts.length - 1], {
-        get: () => (this.moduleProxies[key] || this.updateModuleProxy(key)),
-      });
-    }
-  }
-
-  snapshot() {
-    const snapshot = copy(this.resolvers);
-    this.snapshots.push(snapshot);
-  }
-
-  revert() {
-    this.resolvers = this.snapshots.pop() || {};
-    this.moduleProxies = {};
-    this.functionModules = {};
-    this.container = {};
+  register(key, resolver, useDefaultExport = true) {
+    this.container.addChild(key, resolver, useDefaultExport);
   }
 }

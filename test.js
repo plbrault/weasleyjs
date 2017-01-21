@@ -6,196 +6,146 @@ import chai, { expect } from 'chai';
 
 import Weasley from './src';
 
-let altSampleObj;
-let sampleObj;
-let sampleFuncWithoutParams;
-let sampleFuncWithParams;
-let sampleClassWithoutConstructorParams;
-let sampleClassWithConstructorParams;
+const sampleDependency1 = {
+  speak: () => 'Dark times lie ahead of us and there will be a time when we must choose between what is easy and what is right.',
+};
+const sampleDependency2 = {
+  speak: () => 'Of course it is happening inside your head, Harry, but why on earth should that mean that it is not real?',
+};
+const sampleDependency3 = {
+  speak: () => 'Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it.',
+};
 
-beforeEach(function () {
-  sampleObj = {
-    Gryffindor: 'lion',
-    Hufflepuff: 'badger',
-    Ravenclaw: 'eagle',
-    Slytherin: 'snake',
-  };
+describe('Weasley', function () {
+  it('should properly register a dependency under a single-level key', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus', () => sampleDependency1);
 
-  altSampleObj = {
-    Gryffindor: 'red and ore',
-    Hufflepuff: 'yellow and black',
-    Ravenclaw: 'blue and bronze',
-    Slytherin: 'green and silver',
-  };  
+    const albus = weasley.container.Albus;
+    expect(albus).to.be.equal(sampleDependency1);
+  });
 
-  sampleFuncWithoutParams = function () {
-    return 'horcruxes';
-  };
+  it('should properly register a dependency under a multiple-level key', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
 
-  sampleFuncWithParams = function (harry, ron, hermione) {
-    return `${harry}${ron}${hermione}`;
-  };
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependency1);
+  });
 
-  sampleClassWithoutConstructorParams = class {
-    constructor() {
-      this.YouKnowWho = 'Lord Voldemort';
+  it('should be possible to retrieve the same dependency multiple times', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus1).to.be.equal(sampleDependency1);
+
+    const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus2).to.be.equal(sampleDependency1);
+  });
+
+  it('should be possible to override a dependency under a single-level key', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus', () => sampleDependency1);
+
+    const albus1 = weasley.container.Albus;
+    expect(albus1).to.be.equal(sampleDependency1);
+
+    weasley.register('Albus', () => sampleDependency2);
+
+    const albus2 = weasley.container.Albus;
+    expect(albus2).to.be.equal(sampleDependency2);
+  });
+
+  it('should be possible to override a dependency under a multiple-level key', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus1).to.be.equal(sampleDependency1);
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency2);
+
+    const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus2).to.be.equal(sampleDependency2);
+  });
+
+  it('should be possible to override a dependency before its first use', function () {
+    const weasley = new Weasley();
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => ({}));
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependency1);
+  });
+
+  it('should be possible to register two dependencies under different subkeys of a same key', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rules', () => sampleDependency1);
+
+    const albusRules = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
+    expect(albusRules).to.be.equal(sampleDependency1);
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rocks', () => sampleDependency2);
+    const albusRocks = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
+    expect(albusRocks).to.be.equal(sampleDependency2);
+
+    const albusRulesAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
+    expect(albusRulesAgain).to.be.equal(sampleDependency1);
+
+    const albusRocksAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
+    expect(albusRocksAgain).to.be.equal(sampleDependency2);
+  });
+
+  it('should be possible to override a dependency without effecting on its siblings', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rules', () => sampleDependency1);
+
+    const albusRules = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
+    expect(albusRules).to.be.equal(sampleDependency1);
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rocks', () => sampleDependency2);
+    const albusRocks = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
+    expect(albusRocks).to.be.equal(sampleDependency2);
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rules', () => sampleDependency3);
+    const albusRulesAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
+    expect(albusRulesAgain).to.be.equal(sampleDependency3);
+
+    const albusRocksAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
+    expect(albusRocks).to.be.equal(sampleDependency2);
+  });
+
+  it('should throw an exception when trying to override a container with a dependency', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependency1);
+
+    let exceptionThrown = false;
+    try {
+      weasley.register('Albus', () => sampleDependency1);
+    } catch (err) {
+      exceptionThrown = true;
     }
-  };
+    expect(exceptionThrown).to.be.equal(true);
+  });
 
-  sampleClassWithConstructorParams = class {
-    constructor(draco, vincent, gregory) {
-      this.draco = draco;
-      this.vincent = vincent;
-      this.gregory = gregory;
+  it('should throw an exception when trying to register a dependency as a child of an existing dependency', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependency1);
+
+    let exceptionThrown = false;
+    try {
+      weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rocks', () => sampleDependency2);
+    } catch (err) {
+      exceptionThrown = true;
     }
-  };
-});
-
-it('should properly register an object dependency under a single-level key', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus', () => sampleObj);
-
-  const albus = weasley.container.Albus;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus[key]).to.be.equal(sampleObj[key]);
-  });
-});
-
-it('should properly register an object dependency under a multiple-level key', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus[key]).to.be.equal(sampleObj[key]);
-  });
-});
-
-it('should be possible to retrieve the same object dependency multiple times', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus1[key]).to.be.equal(sampleObj[key]);
-  });
-
-  const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus2[key]).to.be.equal(sampleObj[key]);
-  });
-});
-
-it('should be possible to alter an attribute from an object dependency', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  albus1.Ravenclaw = 'Why not a raven?';
-
-  const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  expect(albus2.Ravenclaw).to.equal('Why not a raven?');
-
-  expect(sampleObj.Ravenclaw).to.equal('Why not a raven?');
-});
-
-it('should be possible to add an attribute to an object dependency', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  albus1.password = 'Caput Draconis';
-
-  const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  expect(albus2.password).to.equal('Caput Draconis');
-
-  expect(sampleObj.password).to.equal('Caput Draconis');
-});
-
-it('should be possible to override an object dependency under a single-level key', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus', () => sampleObj);
-
-  const albus1 = weasley.container.Albus;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus1[key]).to.be.equal(sampleObj[key]);
-  });
-
-  weasley.register('Albus', () => altSampleObj);
-
-  const albus2 = weasley.container.Albus;
-  Object.keys(altSampleObj).forEach(function (key) {
-    expect(albus2[key]).to.be.equal(altSampleObj[key]);
-  });
-});
-
-it('should be possible to override an object dependency under a multiple-level key', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus1 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus1[key]).to.be.equal(sampleObj[key]);
-  });
-
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => altSampleObj);
-
-  const albus2 = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(altSampleObj).forEach(function (key) {
-    expect(albus2[key]).to.be.equal(altSampleObj[key]);
-  });
-});
-
-it('should keep old references up to date when an object dependency is overriden', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albus[key]).to.be.equal(sampleObj[key]);
-  });
-
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => altSampleObj);
-
-  Object.keys(altSampleObj).forEach(function (key) {
-    expect(albus[key]).to.be.equal(altSampleObj[key]);
-  });
-});
-
-it('should be possible to override an object dependency before its first use', function () {
-  const weasley = new Weasley();
-
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => ({}));
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleObj);
-
-  const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-  Object.keys(altSampleObj).forEach(function (key) {
-    expect(albus[key]).to.be.equal(sampleObj[key]);
-  });
-});
-
-it('should be possible to register two object dependencies under different subkeys of a same key', function () {
-  const weasley = new Weasley();
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rules', () => sampleObj);
-
-  const albusRules = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albusRules[key]).to.be.equal(sampleObj[key]);
-  });
-
-  weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore.Rocks', () => altSampleObj);
-  const albusRocks = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
-  Object.keys(altSampleObj).forEach(function (key) {
-    expect(albusRocks[key]).to.be.equal(altSampleObj[key]);
-  });
-
-  const albusRulesAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rules;
-  Object.keys(sampleObj).forEach(function (key) {
-    expect(albusRulesAgain[key]).to.be.equal(sampleObj[key]);
-  });
-
-  const albusRocksAgain = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore.Rocks;
-  Object.keys(altSampleObj).forEach(function (key) {
-    expect(albusRocksAgain[key]).to.be.equal(altSampleObj[key]);
+    expect(exceptionThrown).to.be.equal(true);
   });
 });

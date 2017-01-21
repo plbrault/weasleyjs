@@ -11,7 +11,7 @@ class WeasleyContainer {
         throw new Error('Cannot register new dependency as a child of an existing dependency');
       }
       this[childKey] = this[childKey] || new WeasleyContainer();
-      this[childKey].addChild(keyParts, resolver);
+      this[childKey].addChild(keyParts, resolver, useDefaultExport);
     } else {
       if (this[childKey] && this[childKey].constructor.name === this.constructor.name) {
         throw new Error('Cannot override existing container with dependency');
@@ -19,15 +19,15 @@ class WeasleyContainer {
       Object.defineProperty(this, childKey, {
         configurable: true,
         get: () => {
-          let module = resolver();
-          if (module.default && useDefaultExport) {
-            module = module.default;
+          let dependency = resolver();
+          if (dependency.default !== undefined && useDefaultExport) {
+            dependency = dependency.default;
           }
           Object.defineProperty(this, childKey, {
             configurable: true,
-            value: module,
+            value: dependency,
           });
-          return module;
+          return dependency;
         },
       });
     }

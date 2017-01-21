@@ -6,17 +6,22 @@ import chai, { expect } from 'chai';
 
 import Weasley from './src';
 
-const sampleDependency1 = {
-  speak: () => 'Dark times lie ahead of us and there will be a time when we must choose between what is easy and what is right.',
-};
-const sampleDependency2 = {
-  speak: () => 'Of course it is happening inside your head, Harry, but why on earth should that mean that it is not real?',
-};
-const sampleDependency3 = {
-  speak: () => 'Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it.',
-};
-
 describe('Weasley', function () {
+  const sampleDependency1 = {
+    speak: () => 'Dark times lie ahead of us and there will be a time when we must choose between what is easy and what is right.',
+  };
+  const sampleDependency2 = {
+    speak: () => 'Of course it is happening inside your head, Harry, but why on earth should that mean that it is not real?',
+  };
+  const sampleDependency3 = {
+    speak: () => 'Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it.',
+  };
+  const sampleDependencyWithDefault = {
+    default: {
+      speak: () => 'Nitwit! Blubber! Oddment! Tweak!',
+    },
+  };
+
   it('should properly register a dependency under a single-level key', function () {
     const weasley = new Weasley();
     weasley.register('Albus', () => sampleDependency1);
@@ -147,5 +152,21 @@ describe('Weasley', function () {
       exceptionThrown = true;
     }
     expect(exceptionThrown).to.be.equal(true);
+  });
+
+  it('should use the default import when available', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithDefault);
+
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependencyWithDefault.default);
+  });
+
+  it('should not use the default import when second parameter of register is set to false', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithDefault, false);
+
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependencyWithDefault);
   });
 });

@@ -49,3 +49,7 @@ export default class Weasley {
     this.container.addChild(key, resolver, nameOfExport);
   }
 }
+
+export function lazyLoad(resolver) {
+
+}

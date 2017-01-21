@@ -16,9 +16,12 @@ describe('Weasley', function () {
   const sampleDependency3 = {
     speak: () => 'Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it.',
   };
-  const sampleDependencyWithDefault = {
+  const sampleDependencyWithNamedExports = {
     default: {
       speak: () => 'Nitwit! Blubber! Oddment! Tweak!',
+    },
+    alt: {
+      speak: () => 'It does not do to dwell on dreams and forget to live.',
     },
   };
 
@@ -156,17 +159,25 @@ describe('Weasley', function () {
 
   it('should use the default import when available', function () {
     const weasley = new Weasley();
-    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithDefault);
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithNamedExports);
 
     const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependencyWithDefault.default);
+    expect(albus).to.be.equal(sampleDependencyWithNamedExports.default);
   });
 
-  it('should not use the default import when second parameter of register is set to false', function () {
+  it('should not use the default import when nameOfExport is `*`', function () {
     const weasley = new Weasley();
-    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithDefault, false);
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithNamedExports, '*');
 
     const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependencyWithDefault);
+    expect(albus).to.be.equal(sampleDependencyWithNamedExports);
+  });
+
+  it('should use the specified export if any', function () {
+    const weasley = new Weasley();
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependencyWithNamedExports, 'alt');
+
+    const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
+    expect(albus).to.be.equal(sampleDependencyWithNamedExports.alt);
   });
 });

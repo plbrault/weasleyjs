@@ -1,5 +1,5 @@
 class WeasleyContainer {
-  addChild(key, resolver, useDefaultExport) {
+  addChild(key, resolver, nameOfExport) {
     let keyParts = key;
     if (typeof keyParts === 'string') {
       keyParts = keyParts.split('.');
@@ -11,7 +11,7 @@ class WeasleyContainer {
         throw new Error('Cannot register new dependency as a child of an existing dependency');
       }
       this[childKey] = this[childKey] || new WeasleyContainer();
-      this[childKey].addChild(keyParts, resolver, useDefaultExport);
+      this[childKey].addChild(keyParts, resolver, nameOfExport);
     } else {
       if (this[childKey] && this[childKey].constructor.name === this.constructor.name) {
         throw new Error('Cannot override existing container with dependency');
@@ -20,8 +20,14 @@ class WeasleyContainer {
         configurable: true,
         get: () => {
           let dependency = resolver();
-          if (dependency.default !== undefined && useDefaultExport) {
-            dependency = dependency.default;
+          if (nameOfExport !== '*') {
+            if (nameOfExport === 'default') {
+              if (dependency.default !== undefined) {
+                dependency = dependency.default;
+              }
+            } else if (nameOfExport !== '*') {
+              dependency = dependency[nameOfExport];
+            }
           }
           Object.defineProperty(this, childKey, {
             configurable: true,
@@ -39,7 +45,7 @@ export default class Weasley {
     this.container = new WeasleyContainer();
   }
 
-  register(key, resolver, useDefaultExport = true) {
-    this.container.addChild(key, resolver, useDefaultExport);
+  register(key, resolver, nameOfExport = 'default') {
+    this.container.addChild(key, resolver, nameOfExport);
   }
 }

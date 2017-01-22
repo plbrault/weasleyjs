@@ -1,3 +1,17 @@
+function resolve(resolver, nameOfExport) {
+  let module = resolver();
+  if (nameOfExport !== '*') {
+    if (nameOfExport === 'default') {
+      if (module.default !== undefined) {
+        module = module.default;
+      }
+    } else if (nameOfExport !== '*') {
+      module = module[nameOfExport];
+    }
+  }
+  return module;
+}
+
 class WeasleyContainer {
   addChild(key, resolver, nameOfExport) {
     let keyParts = key;
@@ -19,16 +33,7 @@ class WeasleyContainer {
       Object.defineProperty(this, childKey, {
         configurable: true,
         get: () => {
-          let dependency = resolver();
-          if (nameOfExport !== '*') {
-            if (nameOfExport === 'default') {
-              if (dependency.default !== undefined) {
-                dependency = dependency.default;
-              }
-            } else if (nameOfExport !== '*') {
-              dependency = dependency[nameOfExport];
-            }
-          }
+          const dependency = resolve(resolver, nameOfExport);
           Object.defineProperty(this, childKey, {
             configurable: true,
             value: dependency,
@@ -50,6 +55,51 @@ export default class Weasley {
   }
 }
 
-export function lazyLoad(resolver) {
+class LazyLoadedModule {
+  constructor(resolver, nameOfExport) {
+    this.getModule = () => resolve(resolver, nameOfExport);
+  }
+}
 
+class LazyLoadedObjectModule extends LazyLoadedModule {
+  constructor(resolver, nameOfExport) {
+    super(resolver, nameOfExport);
+    const moduleRef = {
+      getModule: () => {
+        if (!this.theModule) {
+          this.theModule = this.getModule();
+        }
+        return this.theModule;
+      },
+    };
+    this.proxy = new Proxy(moduleRef, {
+      get(target, name) {
+        return target.getModule()[name];
+      },
+      set(target, name, value) {
+        target.getModule()[name] = value; // eslint-disable-line no-param-reassign
+        return true;
+      },
+    });
+  }
+}
+
+class LazyLoadedFunctionModule extends LazyLoadedModule {
+}
+
+class LazyLoadedClassModule extends LazyLoadedModule {
+}
+
+export function lazyLoad(resolver, nameOfExport) {
+  return {
+    get asObject() {
+      return new LazyLoadedObjectModule(resolver, nameOfExport).proxy;
+    },
+    get asFunction() {
+      return new LazyLoadedFunctionModule(resolver, nameOfExport).proxy;
+    },
+    get asClass() {
+      return new LazyLoadedClassModule(resolver, nameOfExport).proxy;
+    },
+  };
 }

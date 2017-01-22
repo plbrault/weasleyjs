@@ -243,4 +243,33 @@ describe('lazyLoad', function () {
     const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
     expect(lazyLoaded.n).to.be.equal(undefined);
   });
+
+  it('should not affect require cache for future imports after lazy-loading an object module', function () {
+    const obj = require('./testModules/sampleObjModule');
+    obj.n = 42;
+    expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
+
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    expect(lazyLoaded.n).to.be.equal(undefined);
+
+    expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
+  });
+
+  it('should not affect require cache for future imports when lazy-loading a function module', function () {
+    const func = require('./testModules/sampleFuncModule');
+    func.n = 42;
+    expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
+
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    expect(lazyLoaded.n).to.be.equal(undefined);
+  });
+
+  it('should not affect require cache for future imports when lazy-loading a class module', function () {
+    const cls = require('./testModules/sampleClassModule');
+    cls.n = 42;
+    expect(require('./testModules/sampleClassModule').n).to.be.equal(cls.n);
+
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
+    expect(lazyLoaded.n).to.be.equal(undefined);
+  });
 });

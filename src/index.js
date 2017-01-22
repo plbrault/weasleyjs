@@ -43,15 +43,39 @@ class WeasleyContainer {
       });
     }
   }
+
+  clone() {
+    const clone = {};
+    Object.getOwnPropertyNames(this).forEach((key) => {
+      if (this[key].constructor.name === this.constructor.name) {
+        clone[key] = this[key].clone();
+      } else {
+        clone[key] = this[key];
+      }
+    });
+    return clone;
+  }
 }
 
 export default class Weasley {
   constructor() {
     this.container = new WeasleyContainer();
+    this.snapshots = [];
   }
 
   register(key, resolver, nameOfExport = 'default') {
     this.container.addChild(key, resolver, nameOfExport);
+  }
+
+  snapshot() {
+    this.snapshots.push(this.container.clone());
+  }
+
+  revert() {
+    if (this.snapshots.length === 0) {
+      throw new Error('There is no snapshot to revert to');
+    }
+    this.container = this.snapshots.pop();
   }
 }
 

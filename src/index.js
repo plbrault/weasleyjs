@@ -64,15 +64,14 @@ class LazyLoadedModule {
 class LazyLoadedObjectModule extends LazyLoadedModule {
   constructor(resolver, nameOfExport) {
     super(resolver, nameOfExport);
-    const moduleRef = {
+    this.moduleRef = {
       getModule: () => {
-        if (!this.module) {
-          this.module = this.getModule();
-        }
+        this.module = this.getModule();
+        this.moduleRef = () => this.module;
         return this.module;
       },
     };
-    this.proxy = new Proxy(moduleRef, {
+    this.proxy = new Proxy(this.moduleRef, {
       get(target, name) {
         return target.getModule()[name];
       },
@@ -85,6 +84,12 @@ class LazyLoadedObjectModule extends LazyLoadedModule {
 }
 
 class LazyLoadedFunctionModule extends LazyLoadedModule {
+  /*constructor(resolver, nameOfExport) {
+    super(resolver, nameOfExport);
+    this.proxy = (...args) => {
+
+    };
+}*/
 }
 
 class LazyLoadedClassModule extends LazyLoadedModule {

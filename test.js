@@ -190,13 +190,13 @@ describe('lazyLoad', function () {
 
   const weasleyModule = () => {
     const weasley = new Weasley();
-    weasley.register('sample.dependency', sampleDependency);
+    weasley.register('sample.dependency', () => sampleDependency);
     return weasley;
   };
 
   const sampleObjModule = () => {
     const weasley = weasleyModule();
-    const someDependency = weasley.container.sampleDependency;
+    const someDependency = weasley.container.sample.dependency;
 
     return {
       albus: someDependency,
@@ -205,7 +205,7 @@ describe('lazyLoad', function () {
 
   const sampleObjModuleWithNamedExports = () => {
     const weasley = weasleyModule();
-    const someDependency = weasley.container.sampleDependency;
+    const someDependency = weasley.container.sample.dependency;
 
     return {
       albus: someDependency,
@@ -218,7 +218,7 @@ describe('lazyLoad', function () {
 
   const sampleFuncModule = () => {
     const weasley = weasleyModule();
-    const someDependency = weasley.container.sampleDependency;
+    const someDependency = weasley.container.sample.dependency;
 
     return function (...args) {
       return {
@@ -230,7 +230,7 @@ describe('lazyLoad', function () {
 
   const sampleClassModule = () => {
     const weasley = weasleyModule();
-    const someDependency = weasley.container.sampleDependency;
+    const someDependency = weasley.container.sample.dependency;
 
     return class {
       constructor(...args) {
@@ -241,12 +241,12 @@ describe('lazyLoad', function () {
   };
 
   it('should be possible to access properties from a lazy-loaded object', function () {
-    const obj = lazyLoad(() => sampleObjModule).asObject;
+    const obj = lazyLoad(() => sampleObjModule()).asObject;
     expect(obj.albus.speak).to.be.equal(sampleDependency.speak);
   });
 
   it('should be possible to call a lazy-loaded function with an arbitrary number of arguments', function () {
-    const func = lazyLoad(() => sampleFuncModule).asFunction;
+    const func = lazyLoad(() => sampleFuncModule()).asFunction;
     const res = func('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(res.albusQuote).to.be.equal(sampleDependency.speak());
     expect(res.passedArgs[0]).to.be.equal('Nitwit');
@@ -256,7 +256,7 @@ describe('lazyLoad', function () {
   });
 
   it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
-    const Cls = lazyLoad(() => sampleClassModule).asClass;
+    const Cls = lazyLoad(() => sampleClassModule()).asClass;
     const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
     expect(inst.passedArgs[0]).to.be.equal('Nitwit');

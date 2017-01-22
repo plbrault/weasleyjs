@@ -242,6 +242,7 @@ describe('lazyLoad', function () {
 
   it('should be possible to access properties from a lazy-loaded object', function () {
     const obj = lazyLoad(() => sampleObjModule()).asObject;
+    expect(obj.albus.name).to.be.equal(sampleDependency.name);    
     expect(obj.albus.speak).to.be.equal(sampleDependency.speak);
   });
 

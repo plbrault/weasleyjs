@@ -183,71 +183,16 @@ describe('Weasley', function () {
 });
 
 describe('lazyLoad', function () {
-  const sampleDependency = {
-    name: 'Albus Dumbledore',
-    speak: () => 'Dark times lie ahead of us and there will be a time when we must choose between what is easy and what is right.',
-  };
-
-  const weasleyModule = () => {
-    const weasley = new Weasley();
-    weasley.register('sample.dependency', () => sampleDependency);
-    return weasley;
-  };
-
-  const sampleObjModule = () => {
-    const weasley = weasleyModule();
-    const someDependency = weasley.container.sample.dependency;
-
-    return {
-      albus: someDependency,
-    };
-  };
-
-  const sampleObjModuleWithNamedExports = () => {
-    const weasley = weasleyModule();
-    const someDependency = weasley.container.sample.dependency;
-
-    return {
-      albus: someDependency,
-      default: {
-        quote: someDependency.speak(),
-      },
-      albusQuote: someDependency.speak(),
-    };
-  };
-
-  const sampleFuncModule = () => {
-    const weasley = weasleyModule();
-    const someDependency = weasley.container.sample.dependency;
-
-    return function (...args) {
-      return {
-        albusQuote: someDependency.speak(),
-        passedArgs: arguments, // eslint-disable-line prefer-rest-params
-      };
-    };
-  };
-
-  const sampleClassModule = () => {
-    const weasley = weasleyModule();
-    const someDependency = weasley.container.sample.dependency;
-
-    return class {
-      constructor(...args) {
-        this.albusQuote = someDependency.speak();
-        this.constructorArgs = arguments; // eslint-disable-line prefer-rest-params
-      }
-    };
-  };
+  const sampleDependency = require('./testModules/sampleDependency').default;
 
   it('should be possible to access properties from a lazy-loaded object', function () {
-    const obj = lazyLoad(() => sampleObjModule()).asObject;
+    const obj = lazyLoad(() => require('./testModules/sampleObjModule')).asObject;
     expect(obj.albus.name).to.be.equal(sampleDependency.name);
     expect(obj.albus.speak).to.be.equal(sampleDependency.speak);
   });
 
   it('should be possible to call a lazy-loaded function with an arbitrary number of arguments', function () {
-    const func = lazyLoad(() => sampleFuncModule()).asFunction;
+    const func = lazyLoad(() => require('./testModules/sampleFuncModule')).asFunction;
     const res = func('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(res.albusQuote).to.be.equal(sampleDependency.speak());
     expect(res.passedArgs[0]).to.be.equal('Nitwit');
@@ -257,12 +202,12 @@ describe('lazyLoad', function () {
   });
 
   it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
-    const Cls = lazyLoad(() => sampleClassModule()).asClass;
+    const Cls = lazyLoad(() => require('./testModules/sampleClassModule')).asClass;
     const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
     expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
     expect(inst.constructorArgs[1]).to.be.equal('Blubber');
     expect(inst.constructorArgs[2]).to.be.equal('Oddment');
-    expect(inst.constructorArgs[3]).to.be.equal('Tweak');    
+    expect(inst.constructorArgs[3]).to.be.equal('Tweak');
   });
 });

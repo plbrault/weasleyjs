@@ -185,6 +185,12 @@ describe('Weasley', function () {
 describe('lazyLoad', function () {
   const sampleDependency = require('./testModules/sampleDependency').default;
 
+  beforeEach(function () {
+    delete require.cache[require.resolve('./testModules/sampleClassModule')];
+    delete require.cache[require.resolve('./testModules/sampleFuncModule')];
+    delete require.cache[require.resolve('./testModules/sampleObjModule')];
+  });
+
   it('should be possible to access properties from a lazy-loaded object', function () {
     const obj = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
     expect(obj.albus.name).to.be.equal(sampleDependency.name);
@@ -209,5 +215,32 @@ describe('lazyLoad', function () {
     expect(inst.constructorArgs[1]).to.be.equal('Blubber');
     expect(inst.constructorArgs[2]).to.be.equal('Oddment');
     expect(inst.constructorArgs[3]).to.be.equal('Tweak');
+  });
+
+  it('should not use require cache when lazy-loading an object module', function () {
+    const obj = require('./testModules/sampleObjModule');
+    obj.n = 42;
+    expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
+
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    expect(lazyLoaded.n).to.be.equal(undefined);
+  });
+
+  it('should not use require cache when lazy-loading a function module', function () {
+    const func = require('./testModules/sampleFuncModule');
+    func.n = 42;
+    expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
+
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    expect(lazyLoaded.n).to.be.equal(undefined);
+  });
+
+  it('should not use require cache when lazy-loading a class module', function () {
+    const cls = require('./testModules/sampleClassModule');
+    cls.n = 42;
+    expect(require('./testModules/sampleClassModule').n).to.be.equal(cls.n);
+
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
+    expect(lazyLoaded.n).to.be.equal(undefined);
   });
 });

@@ -1,4 +1,4 @@
-function resolve(resolver, nameOfExport) {
+export function resolve(resolver, nameOfExport) {
   let module = resolver();
   if (nameOfExport !== '*') {
     if (nameOfExport === 'default') {
@@ -58,7 +58,7 @@ export class WeasleyContainer {
 }
 
 class LazyLoadedModule {
-  constructor(resolver, nameOfExport = 'default') {
+  constructor(resolver, nameOfExport) {
     const getModule = () => resolve(resolver, nameOfExport);
     this.moduleRef = {
       getModule: () => {

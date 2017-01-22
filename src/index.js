@@ -94,6 +94,13 @@ class LazyLoadedFunctionModule extends LazyLoadedModule {
 }
 
 class LazyLoadedClassModule extends LazyLoadedModule {
+  constructor(resolver, nameOfExport) {
+    super(resolver, nameOfExport);
+    this.proxy = (...args) => {
+      this.proxy = this.moduleRef.getModule();
+      return new this.proxy(...args); // eslint-disable-line new-cap
+    };
+  }
 }
 
 export function lazyLoad(resolver, nameOfExport) {

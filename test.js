@@ -259,9 +259,9 @@ describe('lazyLoad', function () {
     const Cls = lazyLoad(() => sampleClassModule()).asClass;
     const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
-    expect(inst.passedArgs[0]).to.be.equal('Nitwit');
-    expect(inst.passedArgs[1]).to.be.equal('Blubber');
-    expect(inst.passedArgs[2]).to.be.equal('Oddment');
-    expect(inst.passedArgs[3]).to.be.equal('Tweak');    
+    expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
+    expect(inst.constructorArgs[1]).to.be.equal('Blubber');
+    expect(inst.constructorArgs[2]).to.be.equal('Oddment');
+    expect(inst.constructorArgs[3]).to.be.equal('Tweak');    
   });
 });

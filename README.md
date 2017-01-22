@@ -53,7 +53,7 @@ In a unit test (example using MochaJS and SinonJS):
 import { lazyLoad } from 'weasley';
 import weasley from './weasley.js';
 
-const awesomeModule = lazyLoad(() => require('./awesomeModule.js')).asObject; // The module to be tested
+const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js')).asObject; // The module to be tested
 
 const myAwesomeMock = {
   doSomethingAwesome: sinon.spy(),

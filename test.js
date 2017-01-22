@@ -186,13 +186,13 @@ describe('lazyLoad', function () {
   const sampleDependency = require('./testModules/sampleDependency').default;
 
   it('should be possible to access properties from a lazy-loaded object', function () {
-    const obj = lazyLoad(() => require('./testModules/sampleObjModule')).asObject;
+    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
     expect(obj.albus.name).to.be.equal(sampleDependency.name);
     expect(obj.albus.speak).to.be.equal(sampleDependency.speak);
   });
 
   it('should be possible to call a lazy-loaded function with an arbitrary number of arguments', function () {
-    const func = lazyLoad(() => require('./testModules/sampleFuncModule')).asFunction;
+    const func = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
     const res = func('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(res.albusQuote).to.be.equal(sampleDependency.speak());
     expect(res.passedArgs[0]).to.be.equal('Nitwit');
@@ -202,7 +202,7 @@ describe('lazyLoad', function () {
   });
 
   it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
-    const Cls = lazyLoad(() => require('./testModules/sampleClassModule')).asClass;
+    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
     const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
     expect(inst.constructorArgs[0]).to.be.equal('Nitwit');

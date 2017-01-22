@@ -103,7 +103,8 @@ class LazyLoadedClassModule extends LazyLoadedModule {
   }
 }
 
-export function lazyLoad(resolver, nameOfExport) {
+export function lazyLoad(absolutePath, nameOfExport) {
+  const resolver = () => require(absolutePath);
   return {
     get asObject() {
       return new LazyLoadedObjectModule(resolver, nameOfExport).proxy;

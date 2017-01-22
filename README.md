@@ -18,7 +18,7 @@ npm install weasley
 ```
 
 
-## Usage
+## Example
 
 Create a `weasley.js` module:
 
@@ -26,14 +26,15 @@ Create a `weasley.js` module:
 import Weasley from 'weasley';
 
 const weasley = new Weasley();
-export default weasley;
 
 weasley.register('my.awesome.dependency', () => require('awesomeDependency'));
-weasley.register('my.boring.dependency', () => require('boringDependency'));
-weasley.register('my.awesome.module', () => require('./awesomeModule.js'));
+weasley.register('my.boring.dependency', () => require('boringDependency'), 'someNamedExport');
+weasley.register('my.awesome.module', () => require('./awesomeModule.js'), '*'); // Don't use default export
+
+export default weasley;
 ```
 
-Import from another module (e.g. `awesomeModule.js`):
+Import your `weasley.js` module from another module (e.g. `awesomeModule.js`):
 
 ```
 import weasley from './weasley.js';
@@ -53,8 +54,10 @@ In a unit test (example using MochaJS and SinonJS):
 import { lazyLoad } from 'weasley';
 import weasley from './weasley.js';
 
-const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js')).asObject; // The module to be tested
+// Lazy-load the module to be tested
+const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js')).asObject;
 
+// Create a mock for a dependency of the module
 const myAwesomeMock = {
   doSomethingAwesome: sinon.spy(),
 };
@@ -65,7 +68,7 @@ describe('awesomeModule', function () {
     weasley.snapshot();
 
     // Override dependency with mock
-    weasley.register('my.awesome.dependency', () => consoleMock);
+    weasley.register('my.awesome.dependency', () => myAwesomeMock);
   });
 
   after(function () {
@@ -78,10 +81,16 @@ describe('awesomeModule', function () {
   } 
 
   afterEach(function () {
-    consoleMock.log.reset();
+    myAwesomeMock.log.reset();
   });
 });
 ```
+
+
+## Documentation
+
+Complete documentation is available [here](https://github.com/plbrault/weasleyjs/blob/master/docs/jsdoc.md).
+
 
 ## License
 

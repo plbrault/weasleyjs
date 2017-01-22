@@ -68,7 +68,7 @@ Register a new dependency.
 <a name="Weasley+snapshot"></a>
 
 ### weasley.snapshot()
-Take a snapshot of the current dependency tree, so you can revert back to it later.
+Take a snapshot of the current dependency tree, so that you can revert back to it later.
 
 **Kind**: instance method of <code>[Weasley](#Weasley)</code>  
 <a name="Weasley+revert"></a>

@@ -2,6 +2,7 @@ import { LazyLoadedObjectModule, LazyLoadedFunctionModule, LazyLoadedClassModule
 
 /**
  * A tremendously simple dependency injection container for JavaScript.
+ * @class Weasley
  * @property {object} container - Provides access to the dependency tree. For instance, to access
  *                                to a dependency registered under the key `my.awesome.dependency`,
  *                                use `container.my.awesome.dependency`.
@@ -9,6 +10,7 @@ import { LazyLoadedObjectModule, LazyLoadedFunctionModule, LazyLoadedClassModule
 export default class Weasley {
   /**
    * Create a new Weasley instance.
+   * @memberof Weasley#
    */
   constructor() {
     this.container = new WeasleyContainer();
@@ -17,6 +19,7 @@ export default class Weasley {
 
   /**
    * Register a new dependency.
+   * @memberof Weasley#
    * @param {string} key - The key for accessing the dependency. It can contain dots to represent a
    *                       dependency hierarchy, e.g. 'my.awesome.dependency'.
    *
@@ -43,6 +46,7 @@ export default class Weasley {
 
   /**
    * Take a snapshot of the current dependency tree, so you can revert back to it later.
+   * @memberof Weasley#
    */
   snapshot() {
     this.snapshots.push(this.container.clone());
@@ -50,6 +54,7 @@ export default class Weasley {
 
   /**
    * Revert to the last dependency tree snapshot.
+   * @memberof Weasley#
    */
   revert() {
     if (this.snapshots.length === 0) {
@@ -67,6 +72,7 @@ export default class Weasley {
  * Be aware that the module will not be loaded from cache, so if you lazy-load the same module at
  * multiple places in your code, you will get different copies of the same module.
  *
+ * @function lazyLoad
  * @param {string} absolutePath - The absolute path to the module. Typically you will want to use
  *                                `require.resolve` for getting this,
  *                                e.g. `require.resolve('./myAwesomeModule');`.

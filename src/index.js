@@ -57,20 +57,20 @@ export default class Weasley {
 
 class LazyLoadedModule {
   constructor(resolver, nameOfExport = 'default') {
-    this.getModule = () => resolve(resolver, nameOfExport);
+    const getModule = () => resolve(resolver, nameOfExport);
+    this.moduleRef = {
+      getModule: () => {
+        const module = getModule();
+        this.moduleRef = () => module;
+        return module;
+      },
+    };
   }
 }
 
 class LazyLoadedObjectModule extends LazyLoadedModule {
   constructor(resolver, nameOfExport) {
     super(resolver, nameOfExport);
-    this.moduleRef = {
-      getModule: () => {
-        this.module = this.getModule();
-        this.moduleRef = () => this.module;
-        return this.module;
-      },
-    };
     this.proxy = new Proxy(this.moduleRef, {
       get(target, name) {
         return target.getModule()[name];
@@ -84,12 +84,13 @@ class LazyLoadedObjectModule extends LazyLoadedModule {
 }
 
 class LazyLoadedFunctionModule extends LazyLoadedModule {
-  /*constructor(resolver, nameOfExport) {
+  constructor(resolver, nameOfExport) {
     super(resolver, nameOfExport);
     this.proxy = (...args) => {
-
+      this.proxy = this.moduleRef.getModule();
+      return this.proxy(...args);
     };
-}*/
+  }
 }
 
 class LazyLoadedClassModule extends LazyLoadedModule {

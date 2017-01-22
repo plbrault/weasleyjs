@@ -50,8 +50,10 @@ export default () => {
 In a unit test (example using MochaJS and SinonJS):
 
 ```
-import awesomeModule from './awesomeModule.js'; // The module to be tested
+import { lazyLoad } from 'weasley';
 import weasley from './weasley.js';
+
+const awesomeModule = lazyLoad(() => require('./awesomeModule.js')).asObject; // The module to be tested
 
 const myAwesomeMock = {
   doSomethingAwesome: sinon.spy(),
@@ -59,8 +61,16 @@ const myAwesomeMock = {
 
 describe('awesomeModule', function () {
   before(function () {
+    // Create a snapshot of current dependencies
+    weasley.snapshot();
+
     // Override dependency with mock
     weasley.register('my.awesome.dependency', () => consoleMock);
+  });
+
+  after(function () {
+    // Revert to snapshot
+    weasley.revert();
   });
 
   it('should do something awesome') {
@@ -72,20 +82,6 @@ describe('awesomeModule', function () {
   });
 });
 ```
-
-### Calling `new`
-
-If you have to call the `new` operator on a dependency imported by Weasley, add `.new` at the end
-of the imported object:
-
-```
-import weasley from './weasley.js';
-
-const amazingDependency = weasley.container.my.amazing.dependency.new;
-
-const amazingObject = new amazingDependency();
-```
-
 
 ## License
 

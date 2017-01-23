@@ -80,7 +80,7 @@ class LazyLoadedModule {
     this.moduleRef = {
       getModule: () => {
         const module = getModule();
-        this.moduleRef = () => module;
+        this.moduleRef.getModule = () => module;
         return module;
       },
     };

@@ -15,6 +15,10 @@ export default class Weasley {
   constructor() {
     this.container = new WeasleyContainer();
     this.snapshots = [];
+
+    this.register = this.register.bind(this);
+    this.snapshot = this.snapshot.bind(this);
+    this.revert = this.revert.bind(this);
   }
 
   /**
@@ -84,7 +88,7 @@ export default class Weasley {
  *
  * Be aware that the module will not be loaded from cache, so if you lazy-load the same module at
  * multiple places in your code, you will get different copies of the same module.
- * 
+ *
  * Usage Example:
  * ```
  * const myAwesomeModule = lazyLoad(require.resolve('./myAwesomeModule')).asObject;

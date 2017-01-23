@@ -13,6 +13,11 @@ export function resolve(resolver, nameOfExport) {
 }
 
 export class WeasleyContainer {
+  constructor() {
+    this.addChild = this.addChild.bind(this);
+    this.clone = this.clone.bind(this);
+  }
+
   addChild(key, resolver, nameOfExport) {
     let keyParts = key;
     if (typeof keyParts === 'string') {

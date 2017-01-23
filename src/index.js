@@ -45,7 +45,7 @@ export default class Weasley {
    *                                          pass '*' to this parameter.
    */
   register(key, resolver, nameOfExport = 'default') {
-    this.container.addChild(key, resolver, nameOfExport);
+    this.container._addChild(key, resolver, nameOfExport);
   }
 
   /**
@@ -53,7 +53,7 @@ export default class Weasley {
    * @memberof Weasley#
    */
   snapshot() {
-    this.snapshots.push(this.container.clone());
+    this.snapshots.push(this.container._clone());
   }
 
   /**

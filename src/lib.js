@@ -14,11 +14,11 @@ export function resolve(resolver, nameOfExport) {
 
 export class WeasleyContainer {
   constructor() {
-    this.addChild = this.addChild.bind(this);
-    this.clone = this.clone.bind(this);
+    this._addChild = this._addChild.bind(this);
+    this._clone = this._clone.bind(this);
   }
 
-  addChild(key, resolver, nameOfExport) {
+  _addChild(key, resolver, nameOfExport) {
     let keyParts = key;
     if (typeof keyParts === 'string') {
       keyParts = keyParts.split('.');
@@ -30,7 +30,7 @@ export class WeasleyContainer {
         throw new Error('Cannot register new dependency as a child of an existing dependency');
       }
       this[childKey] = this[childKey] || new WeasleyContainer();
-      this[childKey].addChild(keyParts, resolver, nameOfExport);
+      this[childKey]._addChild(keyParts, resolver, nameOfExport);
     } else {
       if (this[childKey] && this[childKey].constructor.name === this.constructor.name) {
         throw new Error('Cannot override existing container with dependency');
@@ -49,13 +49,25 @@ export class WeasleyContainer {
     }
   }
 
-  clone() {
-    const clone = {};
+  _clone() {
+    const clone = new WeasleyContainer();
     Object.getOwnPropertyNames(this).forEach((key) => {
-      if (this[key].constructor.name === this.constructor.name) {
-        clone[key] = this[key].clone();
+      const descriptor = Object.getOwnPropertyDescriptor(this, key);
+      const value = descriptor.value;
+      if (value) {
+        if (value.constructor.name === this.constructor.name) {
+          clone[key] = value._clone();
+        } else {
+          Object.defineProperty(clone, key, {
+            configurable: true,
+            value,
+          });
+        }
       } else {
-        clone[key] = this[key];
+        Object.defineProperty(clone, key, {
+          configurable: true,
+          get: descriptor.get,
+        });
       }
     });
     return clone;

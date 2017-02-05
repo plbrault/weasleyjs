@@ -38,8 +38,5 @@
     "mocha": "^3.2.0",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0"
-  },
-  "dependencies": {
-    "shallow-copy": "0.0.1"
   }
 }

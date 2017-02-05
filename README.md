@@ -109,7 +109,7 @@ import weasley from './weasley.js';
 
 const awesomeClass = lazyLoad(require.resolve('./awesomeClass.js'));
 
-const awesomeInstance = New(awesomeClass);
+const awesomeInstance = New(awesomeClass)('first constructor argument', 'second constructor argument');
 ```
 
 

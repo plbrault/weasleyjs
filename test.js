@@ -4,7 +4,7 @@ no-unused-vars */
 
 import chai, { expect } from 'chai';
 
-import Weasley, { lazyLoad } from './src';
+import Weasley, { lazyLoad, New } from './src';
 
 describe('Weasley', function () {
   const sampleDependency1 = {
@@ -187,6 +187,7 @@ describe('Weasley', function () {
 
     let albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
     expect(albus).to.be.equal(sampleDependency1);
+    expect(albus).to.not.be.equal(sampleDependency2);
 
     weasley.snapshot();
     albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
@@ -212,13 +213,13 @@ describe('lazyLoad', function () {
   });
 
   it('should be possible to access properties from a lazy-loaded object', function () {
-    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule'));
     expect(obj.albus.name).to.be.equal(sampleDependency.name);
     expect(obj.albus.speak).to.be.equal(sampleDependency.speak);
   });
 
   it('should be possible to call a lazy-loaded function with an arbitrary number of arguments', function () {
-    const func = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    const func = lazyLoad(require.resolve('./testModules/sampleFuncModule'));
     const res = func('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(res.albusQuote).to.be.equal(sampleDependency.speak());
     expect(res.passedArgs[0]).to.be.equal('Nitwit');
@@ -227,22 +228,12 @@ describe('lazyLoad', function () {
     expect(res.passedArgs[3]).to.be.equal('Tweak');
   });
 
-  it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
-    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
-    const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
-    expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
-    expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
-    expect(inst.constructorArgs[1]).to.be.equal('Blubber');
-    expect(inst.constructorArgs[2]).to.be.equal('Oddment');
-    expect(inst.constructorArgs[3]).to.be.equal('Tweak');
-  });
-
   it('should not use require cache when lazy-loading an object module', function () {
     const obj = require('./testModules/sampleObjModule');
     obj.n = 42;
     expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
   });
 
@@ -251,25 +242,16 @@ describe('lazyLoad', function () {
     func.n = 42;
     expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
   });
 
-  it('should not use require cache when lazy-loading a class module', function () {
-    const cls = require('./testModules/sampleClassModule');
-    cls.n = 42;
-    expect(require('./testModules/sampleClassModule').n).to.be.equal(cls.n);
-
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
-    expect(lazyLoaded.n).to.be.equal(undefined);
-  });
-
-  it('should not affect require cache for future imports after lazy-loading an object module', function () {
+  it('should not affect require cache for future imports when lazy-loading an object module', function () {
     const obj = require('./testModules/sampleObjModule');
     obj.n = 42;
     expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
 
     expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
@@ -280,16 +262,23 @@ describe('lazyLoad', function () {
     func.n = 42;
     expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
+
+    expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
   });
+});
 
-  it('should not affect require cache for future imports when lazy-loading a class module', function () {
-    const cls = require('./testModules/sampleClassModule');
-    cls.n = 42;
-    expect(require('./testModules/sampleClassModule').n).to.be.equal(cls.n);
+describe('New', function () {
+  const sampleDependency = require('./testModules/sampleDependency').default;
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
-    expect(lazyLoaded.n).to.be.equal(undefined);
+  it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
+    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule'));
+    const inst = New(Cls)('Nitwit', 'Blubber', 'Oddment', 'Tweak');
+    expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
+    expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
+    expect(inst.constructorArgs[1]).to.be.equal('Blubber');
+    expect(inst.constructorArgs[2]).to.be.equal('Oddment');
+    expect(inst.constructorArgs[3]).to.be.equal('Tweak');
   });
 });

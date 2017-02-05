@@ -109,6 +109,10 @@ export class LazyLoadedModule {
       apply(target, ctx, args) {
         return Reflect.apply(target(), ctx, args);
       },
+      construct(target, args) {
+        const Cls = target();
+        return Reflect.construct(Cls, args);
+      },
     });
   }
 }

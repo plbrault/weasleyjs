@@ -238,6 +238,12 @@ describe('lazyLoad', function () {
     expect(inst.constructorArgs[3]).to.be.equal('Tweak');
   });
 
+  it('should be possible to set a proprerty of a lazy-loaded object', function () {
+    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule'));
+    obj.n = 42;
+    expect(obj.n).to.equal(42);
+  });
+
   it('should not use require cache when lazy-loading an object module', function () {
     const obj = require('./testModules/sampleObjModule');
     obj.n = 42;

@@ -15,7 +15,6 @@ export function resolve(resolver, nameOfExport) {
 export class WeasleyContainer {
   constructor() {
     this._addChild = this._addChild.bind(this);
-    this._clone = this._clone.bind(this);
   }
 
   _addChild(key, resolver, nameOfExport) {
@@ -53,30 +52,6 @@ export class WeasleyContainer {
         },
       });
     }
-  }
-
-  _clone() {
-    const clone = new WeasleyContainer();
-    Object.getOwnPropertyNames(this).forEach((key) => {
-      const descriptor = Object.getOwnPropertyDescriptor(this, key);
-      const value = descriptor.value;
-      if (value) {
-        if (value.constructor.name === this.constructor.name) {
-          clone[key] = value._clone();
-        } else {
-          Object.defineProperty(clone, key, {
-            configurable: true,
-            value,
-          });
-        }
-      } else {
-        Object.defineProperty(clone, key, {
-          configurable: true,
-          get: descriptor.get,
-        });
-      }
-    });
-    return clone;
   }
 }
 

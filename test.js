@@ -197,27 +197,6 @@ describe('Weasley', function () {
     const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
     expect(albus).to.be.equal(sampleDependencyWithNamedExports.alt);
   });
-
-  it('should be possible to snapshot the current container and revert to it afterwards', function () {
-    const weasley = new Weasley();
-    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
-
-    let albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency1);
-    expect(albus).to.not.be.equal(sampleDependency2);
-
-    weasley.snapshot();
-    albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency1);
-
-    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency2);
-    albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency2);
-
-    weasley.revert();
-    albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency1);
-  });
 });
 
 describe('lazyLoad', function () {

@@ -14,11 +14,8 @@ export default class Weasley {
    */
   constructor() {
     this.container = new WeasleyContainer();
-    this.snapshots = [];
 
     this.register = this.register.bind(this);
-    this.snapshot = this.snapshot.bind(this);
-    this.revert = this.revert.bind(this);
   }
 
   /**
@@ -46,25 +43,6 @@ export default class Weasley {
    */
   register(key, resolver, nameOfExport = 'default') {
     this.container._addChild(key, resolver, nameOfExport);
-  }
-
-  /**
-   * Take a snapshot of the current dependency tree, so that you can revert back to it later.
-   * @memberof Weasley#
-   */
-  snapshot() {
-    this.snapshots.push(this.container._clone());
-  }
-
-  /**
-   * Revert to the last dependency tree snapshot.
-   * @memberof Weasley#
-   */
-  revert() {
-    if (this.snapshots.length === 0) {
-      throw new Error('There is no snapshot to revert to');
-    }
-    this.container = this.snapshots.pop();
   }
 }
 

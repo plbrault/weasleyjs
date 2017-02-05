@@ -3,8 +3,12 @@
 no-unused-vars */
 
 import chai, { expect } from 'chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 
 import Weasley, { lazyLoad } from './src';
+
+chai.use(sinonChai);
 
 describe('Weasley', function () {
   const sampleDependency1 = {
@@ -86,6 +90,19 @@ describe('Weasley', function () {
 
     const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
     expect(albus).to.be.equal(sampleDependency1);
+  });
+
+  it('should not call a dependency\'s resolver while overriding it before its first use', function () {
+    const weasley = new Weasley();
+    const spy = sinon.spy();
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => {
+      spy();
+      return {};
+    });
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    expect(spy).to.not.be.called();
   });
 
   it('should be possible to register two dependencies under different subkeys of a same key', function () {

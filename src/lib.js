@@ -77,9 +77,10 @@ export class WeasleyContainer {
 export class LazyLoadedModule {
   constructor(resolver, nameOfExport) {
     this.getModule = () => {
-      const module = resolve(resolver, nameOfExport);
-      this.getModule = () => module;
-      return module;
+      if (!this.module) {
+        this.module = resolve(resolver, nameOfExport);
+      }
+      return this.module;
     };
     this.proxy = new Proxy(this.getModule, {
       apply(target, ctx, args) {

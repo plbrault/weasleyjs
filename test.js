@@ -1,6 +1,6 @@
 /* eslint-env node, mocha */
 /* eslint-disable import/no-extraneous-dependencies, func-names, prefer-arrow-callback,
-no-unused-vars */
+no-unused-vars, no-unused-expressions */
 
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
@@ -102,7 +102,7 @@ describe('Weasley', function () {
     });
     weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
 
-    expect(spy).to.not.be.called();
+    expect(spy).to.not.be.called;
   });
 
   it('should be possible to register two dependencies under different subkeys of a same key', function () {

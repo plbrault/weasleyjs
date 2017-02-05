@@ -76,25 +76,13 @@ const myAwesomeMock = {
 
 describe('awesomeModule', function () {
   before(function () {
-    // Create a snapshot of current dependencies
-    weasley.snapshot();
-
     // Override dependency with mock
     weasley.register('my.awesome.dependency', () => myAwesomeMock);
   });
 
-  after(function () {
-    // Revert to snapshot
-    weasley.revert();
-  });
-
   it('should do something awesome') {
     // ...
-  } 
-
-  afterEach(function () {
-    myAwesomeMock.log.reset();
-  });
+  }
 });
 ```
 

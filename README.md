@@ -22,40 +22,52 @@ npm install weasley
 
 Create a `weasley.js` module:
 
-```
+```javascript
 import Weasley from 'weasley';
 
 const weasley = new Weasley();
 
+// Register the `awesomeDependency` package under the key `my.awesome.dependency`.
+// If `awesomeDependency` has a default export, it will be used.
 weasley.register('my.awesome.dependency', () => require('awesomeDependency'));
-weasley.register('my.boring.dependency', () => require('boringDependency'), 'someNamedExport');
-weasley.register('my.awesome.module', () => require('./awesomeModule.js'), '*'); // Don't use default export
+
+// Register the `boringExport` named export of the `boringDependency` package under
+// the key `my.boring.dependency`.
+weasley.register('my.boring.dependency', () => require('boringDependency'), 'boringExport');
+
+// Register all exports (instead of `default`) of `awesomeModule` under the key
+// `my.awesome.module`.
+weasley.register('my.awesome.module', () => require('./awesomeModule.js'), '*');
 
 export default weasley;
 ```
 
 Import your `weasley.js` module from another module (e.g. `awesomeModule.js`):
 
-```
+```javascript
 import weasley from './weasley.js';
 
 const awesomeDependency = weasley.container.my.awesome.dependency;
 const boringDependency = weasley.container.my.boring.dependency;
 
-export default () => {
+export function doThings() {
   awesomeDependency.doSomethingAwesome();
   boringDependency.doSomethingBoring();
 }
+
+export default {
+  isAwesome: true,
+};
 ```
 
 In a unit test (example using MochaJS and SinonJS):
 
-```
+```javascript
 import { lazyLoad } from 'weasley';
 import weasley from './weasley.js';
 
 // Lazy-load the module to be tested
-const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js')).asObject;
+const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js'));
 
 // Create a mock for a dependency of the module
 const myAwesomeMock = {
@@ -84,6 +96,20 @@ describe('awesomeModule', function () {
     myAwesomeMock.log.reset();
   });
 });
+```
+
+
+## Lazy-loading and the `new`operator
+
+When lazy-loading a dependency, you cannot call the `new` operator on it. Instead, you should use the `New` function from the library:
+
+```javascript
+import { lazyLoad, New } from 'weasley';
+import weasley from './weasley.js';
+
+const awesomeClass = lazyLoad(require.resolve('./awesomeClass.js'));
+
+const awesomeInstance = New(awesomeClass);
 ```
 
 

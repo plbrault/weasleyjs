@@ -99,9 +99,9 @@ describe('awesomeModule', function () {
 ```
 
 
-## Lazy-loading and the `new`operator
+## Lazy-loading and the `new` operator
 
-When lazy-loading a dependency, you cannot call the `new` operator on it. Instead, you should use the `New` function from the library:
+When lazy-loading a dependency, you cannot call the `new` operator on it. Instead, you have to use the `New` function from the library:
 
 ```javascript
 import { lazyLoad, New } from 'weasley';
@@ -111,6 +111,25 @@ const awesomeClass = lazyLoad(require.resolve('./awesomeClass.js'));
 
 const awesomeInstance = New(awesomeClass);
 ```
+
+
+## Lazy-loading vs import/require
+
+When using `lazyLoad` to import a module, it is not actually imported until it is used for the first time. For instance:
+
+```javascript
+const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js'));
+// `./awesomeModule.js` has not been imported yet.
+
+awesomeModule.doSomethingAwesome();
+// `./awesomeModule.js` has now been imported.
+```
+
+In unit tests, this behavior allows you to mock dependencies used by the module between the call to `lazyLoad` and the
+actual testing of the module.
+
+Also, contrary to using `import` or `require`, if you lazy-load the same module at multiple places in your code, you will
+get different copies of the module.
 
 
 ## Documentation

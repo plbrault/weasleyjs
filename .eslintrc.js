@@ -7,5 +7,6 @@ module.exports = {
     'no-prototype-builtins': 'off',
     'global-require': 'off',
     'import/no-dynamic-require': 'off',
+    'no-underscore-dangle': 'off',
   }
 };

@@ -13,7 +13,11 @@ export function resolve(resolver, nameOfExport) {
 }
 
 export class WeasleyContainer {
-  addChild(key, resolver, nameOfExport) {
+  constructor() {
+    this._addChild = this._addChild.bind(this);
+  }
+
+  _addChild(key, resolver, nameOfExport) {
     let keyParts = key;
     if (typeof keyParts === 'string') {
       keyParts = keyParts.split('.');
@@ -21,14 +25,20 @@ export class WeasleyContainer {
 
     const childKey = keyParts.shift();
     if (keyParts.length > 0) {
-      if (this[childKey] && this[childKey].constructor.name !== this.constructor.name) {
-        throw new Error('Cannot register new dependency as a child of an existing dependency');
+      if (childKey in this) {
+        const child = Object.getOwnPropertyDescriptor(this, childKey).value;
+        if (child && child.constructor.name !== this.constructor.name) {
+          throw new Error('Cannot register new dependency as a child of an existing dependency');
+        }
       }
       this[childKey] = this[childKey] || new WeasleyContainer();
-      this[childKey].addChild(keyParts, resolver, nameOfExport);
+      this[childKey]._addChild(keyParts, resolver, nameOfExport);
     } else {
-      if (this[childKey] && this[childKey].constructor.name === this.constructor.name) {
-        throw new Error('Cannot override existing container with dependency');
+      if (childKey in this) {
+        const child = Object.getOwnPropertyDescriptor(this, childKey).value;
+        if (child && child.constructor.name === this.constructor.name) {
+          throw new Error('Cannot override existing container with dependency');
+        }
       }
       Object.defineProperty(this, childKey, {
         configurable: true,
@@ -43,64 +53,59 @@ export class WeasleyContainer {
       });
     }
   }
+}
 
-  clone() {
-    const clone = {};
-    Object.getOwnPropertyNames(this).forEach((key) => {
-      if (this[key].constructor.name === this.constructor.name) {
-        clone[key] = this[key].clone();
-      } else {
-        clone[key] = this[key];
+export class LazyLoadedModule {
+  constructor(resolver, nameOfExport) {
+    this.getModule = () => {
+      if (!this.module) {
+        this.module = resolve(resolver, nameOfExport);
       }
-    });
-    return clone;
-  }
-}
-
-class LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    const getModule = () => resolve(resolver, nameOfExport);
-    this.moduleRef = {
-      getModule: () => {
-        const module = getModule();
-        this.moduleRef = () => module;
-        return module;
-      },
+      return this.module;
     };
-  }
-}
-
-export class LazyLoadedObjectModule extends LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    super(resolver, nameOfExport);
-    this.proxy = new Proxy(this.moduleRef, {
+    this.proxy = new Proxy(this.getModule, {
+      apply(target, ctx, args) {
+        return Reflect.apply(target(), ctx, args);
+      },
+      construct(target, args) {
+        return Reflect.construct(target(), args);
+      },
+      defineProperty(target, key, descriptor) {
+        return Reflect.defineProperty(target(), key, descriptor);
+      },
+      deleteProperty(target, key) {
+        return Reflect.deleteProperty(target(), key);
+      },
+      enumerate(target) {
+        return Object.keys(target())[Symbol.iterator]();
+      },
       get(target, name) {
-        return target.getModule()[name];
+        return Reflect.get(target(), name);
+      },
+      getOwnPropertyDescriptor(target, prop) {
+        return Reflect.getOwnPropertyDescriptor(target(), prop);
+      },
+      getPrototypeOf(target) {
+        return Reflect.getPrototypeOf(target());
+      },
+      has(target, key) {
+        return Reflect.has(target(), key);
+      },
+      isExtensible(target) {
+        return Reflect.isExtensible(target());
+      },
+      ownKeys(target) {
+        return Reflect.ownKeys(target());
+      },
+      preventExtensions(target) {
+        return Reflect.preventExtensions(target());
       },
       set(target, name, value) {
-        target.getModule()[name] = value; // eslint-disable-line no-param-reassign
-        return true;
+        return Reflect.set(target(), name, value);
+      },
+      setPrototypeOf(target, prototype) {
+        return Reflect.setPrototypeOf(target(), prototype);
       },
     });
-  }
-}
-
-export class LazyLoadedFunctionModule extends LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    super(resolver, nameOfExport);
-    this.proxy = (...args) => {
-      this.proxy = this.moduleRef.getModule();
-      return this.proxy(...args);
-    };
-  }
-}
-
-export class LazyLoadedClassModule extends LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    super(resolver, nameOfExport);
-    this.proxy = (...args) => {
-      this.proxy = this.moduleRef.getModule();
-      return new this.proxy(...args); // eslint-disable-line new-cap
-    };
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "weasley",
-  "version": "0.2.0-beta.0",
+  "version": "0.2.0",
   "description": "A tremendously simple dependency injection container for JavaScript",
   "main": "lib/index.js",
   "scripts": {
@@ -35,7 +35,9 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.8.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.7",
+    "sinon-chai": "^2.8.0"
   },
   "dependencies": {
     "shallow-copy": "0.0.1"

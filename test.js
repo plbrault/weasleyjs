@@ -1,10 +1,14 @@
 /* eslint-env node, mocha */
 /* eslint-disable import/no-extraneous-dependencies, func-names, prefer-arrow-callback,
-no-unused-vars */
+no-unused-vars, no-unused-expressions */
 
 import chai, { expect } from 'chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 
 import Weasley, { lazyLoad } from './src';
+
+chai.use(sinonChai);
 
 describe('Weasley', function () {
   const sampleDependency1 = {
@@ -86,6 +90,19 @@ describe('Weasley', function () {
 
     const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
     expect(albus).to.be.equal(sampleDependency1);
+  });
+
+  it('should not call a dependency\'s resolver while overriding it before its first use', function () {
+    const weasley = new Weasley();
+    const spy = sinon.spy();
+
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => {
+      spy();
+      return {};
+    });
+    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
+
+    expect(spy).to.not.be.called;
   });
 
   it('should be possible to register two dependencies under different subkeys of a same key', function () {
@@ -180,26 +197,6 @@ describe('Weasley', function () {
     const albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
     expect(albus).to.be.equal(sampleDependencyWithNamedExports.alt);
   });
-
-  it('should be possible to snapshot the current container and revert to it afterwards', function () {
-    const weasley = new Weasley();
-    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency1);
-
-    let albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency1);
-
-    weasley.snapshot();
-    albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency1);
-
-    weasley.register('Albus.Percival.Wulfric.Brian.Dumbledore', () => sampleDependency2);
-    albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency2);
-
-    weasley.revert();
-    albus = weasley.container.Albus.Percival.Wulfric.Brian.Dumbledore;
-    expect(albus).to.be.equal(sampleDependency1);
-  });
 });
 
 describe('lazyLoad', function () {
@@ -212,13 +209,13 @@ describe('lazyLoad', function () {
   });
 
   it('should be possible to access properties from a lazy-loaded object', function () {
-    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule'));
     expect(obj.albus.name).to.be.equal(sampleDependency.name);
     expect(obj.albus.speak).to.be.equal(sampleDependency.speak);
   });
 
   it('should be possible to call a lazy-loaded function with an arbitrary number of arguments', function () {
-    const func = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    const func = lazyLoad(require.resolve('./testModules/sampleFuncModule'));
     const res = func('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(res.albusQuote).to.be.equal(sampleDependency.speak());
     expect(res.passedArgs[0]).to.be.equal('Nitwit');
@@ -228,7 +225,7 @@ describe('lazyLoad', function () {
   });
 
   it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
-    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
+    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule'));
     const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
     expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
     expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
@@ -237,12 +234,18 @@ describe('lazyLoad', function () {
     expect(inst.constructorArgs[3]).to.be.equal('Tweak');
   });
 
+  it('should be possible to set a proprerty of a lazy-loaded object', function () {
+    const obj = lazyLoad(require.resolve('./testModules/sampleObjModule'));
+    obj.n = 42;
+    expect(obj.n).to.equal(42);
+  });
+
   it('should not use require cache when lazy-loading an object module', function () {
     const obj = require('./testModules/sampleObjModule');
     obj.n = 42;
     expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
   });
 
@@ -251,25 +254,16 @@ describe('lazyLoad', function () {
     func.n = 42;
     expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
   });
 
-  it('should not use require cache when lazy-loading a class module', function () {
-    const cls = require('./testModules/sampleClassModule');
-    cls.n = 42;
-    expect(require('./testModules/sampleClassModule').n).to.be.equal(cls.n);
-
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
-    expect(lazyLoaded.n).to.be.equal(undefined);
-  });
-
-  it('should not affect require cache for future imports after lazy-loading an object module', function () {
+  it('should not affect require cache for future imports when lazy-loading an object module', function () {
     const obj = require('./testModules/sampleObjModule');
     obj.n = 42;
     expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule')).asObject;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleObjModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
 
     expect(require('./testModules/sampleObjModule').n).to.be.equal(obj.n);
@@ -280,16 +274,9 @@ describe('lazyLoad', function () {
     func.n = 42;
     expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
 
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule')).asFunction;
+    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleFuncModule'));
     expect(lazyLoaded.n).to.be.equal(undefined);
-  });
 
-  it('should not affect require cache for future imports when lazy-loading a class module', function () {
-    const cls = require('./testModules/sampleClassModule');
-    cls.n = 42;
-    expect(require('./testModules/sampleClassModule').n).to.be.equal(cls.n);
-
-    const lazyLoaded = lazyLoad(require.resolve('./testModules/sampleClassModule')).asClass;
-    expect(lazyLoaded.n).to.be.equal(undefined);
+    expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
   });
 });

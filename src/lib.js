@@ -74,50 +74,41 @@ export class WeasleyContainer {
   }
 }
 
-class LazyLoadedModule {
+export class LazyLoadedModule {
   constructor(resolver, nameOfExport) {
-    const getModule = () => resolve(resolver, nameOfExport);
-    this.moduleRef = {
-      getModule: () => {
-        const module = getModule();
-        this.moduleRef.getModule = () => module;
-        return module;
-      },
+    this.getModule = () => {
+      const module = resolve(resolver, nameOfExport);
+      this.getModule = () => module;
+      return module;
     };
-  }
-}
-
-export class LazyLoadedObjectModule extends LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    super(resolver, nameOfExport);
-    this.proxy = new Proxy(this.moduleRef, {
+    this.proxy = new Proxy(this.getModule, {
       get(target, name) {
-        return target.getModule()[name];
+        return target()[name];
       },
       set(target, name, value) {
-        target.getModule()[name] = value; // eslint-disable-line no-param-reassign
+        target()[name] = value; // eslint-disable-line no-param-reassign
         return true;
       },
+      has(target, key) {
+        return key in target();
+      },
+      deleteProperty(target, key) {
+        delete target()[key];  // eslint-disable-line no-param-reassign
+        return true;
+      },
+      defineProperty(target, key, descriptor) {
+        Object.defineProperty(target(), key, descriptor);
+        return true;
+      },
+      enumerate(target) {
+        return Object.keys(target())[Symbol.iterator]();
+      },
+      ownKeys(target) {
+        return Reflect.ownKeys(target());
+      },
+      apply(target, ctx, args) {
+        return Reflect.apply(target(), ctx, args);
+      },
     });
-  }
-}
-
-export class LazyLoadedFunctionModule extends LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    super(resolver, nameOfExport);
-    this.proxy = (...args) => {
-      this.proxy = this.moduleRef.getModule();
-      return this.proxy(...args);
-    };
-  }
-}
-
-export class LazyLoadedClassModule extends LazyLoadedModule {
-  constructor(resolver, nameOfExport) {
-    super(resolver, nameOfExport);
-    this.proxy = (...args) => {
-      this.proxy = this.moduleRef.getModule();
-      return new this.proxy(...args); // eslint-disable-line new-cap
-    };
   }
 }

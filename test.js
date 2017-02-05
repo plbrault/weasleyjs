@@ -4,7 +4,7 @@ no-unused-vars */
 
 import chai, { expect } from 'chai';
 
-import Weasley, { lazyLoad, New } from './src';
+import Weasley, { lazyLoad } from './src';
 
 describe('Weasley', function () {
   const sampleDependency1 = {
@@ -228,6 +228,16 @@ describe('lazyLoad', function () {
     expect(res.passedArgs[3]).to.be.equal('Tweak');
   });
 
+  it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
+    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule'));
+    const inst = new Cls('Nitwit', 'Blubber', 'Oddment', 'Tweak');
+    expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
+    expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
+    expect(inst.constructorArgs[1]).to.be.equal('Blubber');
+    expect(inst.constructorArgs[2]).to.be.equal('Oddment');
+    expect(inst.constructorArgs[3]).to.be.equal('Tweak');
+  });
+
   it('should not use require cache when lazy-loading an object module', function () {
     const obj = require('./testModules/sampleObjModule');
     obj.n = 42;
@@ -266,19 +276,5 @@ describe('lazyLoad', function () {
     expect(lazyLoaded.n).to.be.equal(undefined);
 
     expect(require('./testModules/sampleFuncModule').n).to.be.equal(func.n);
-  });
-});
-
-describe('New', function () {
-  const sampleDependency = require('./testModules/sampleDependency').default;
-
-  it('should be possible to instanciate a lazy-loaded class with an arbitrary number of constructor arguments', function () {
-    const Cls = lazyLoad(require.resolve('./testModules/sampleClassModule'));
-    const inst = New(Cls)('Nitwit', 'Blubber', 'Oddment', 'Tweak');
-    expect(inst.albusQuote).to.be.equal(sampleDependency.speak());
-    expect(inst.constructorArgs[0]).to.be.equal('Nitwit');
-    expect(inst.constructorArgs[1]).to.be.equal('Blubber');
-    expect(inst.constructorArgs[2]).to.be.equal('Oddment');
-    expect(inst.constructorArgs[3]).to.be.equal('Tweak');
   });
 });

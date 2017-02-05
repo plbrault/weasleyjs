@@ -99,20 +99,6 @@ describe('awesomeModule', function () {
 ```
 
 
-## Lazy-loading and the `new` operator
-
-When lazy-loading a dependency, you cannot call the `new` operator on it. Instead, you have to use the `New` function from the library:
-
-```javascript
-import { lazyLoad, New } from 'weasley';
-import weasley from './weasley.js';
-
-const awesomeClass = lazyLoad(require.resolve('./awesomeClass.js'));
-
-const awesomeInstance = New(awesomeClass)('first constructor argument', 'second constructor argument');
-```
-
-
 ## Lazy-loading vs import/require
 
 When using `lazyLoad` to import a module, it is not actually imported until it is used for the first time. For instance:
@@ -130,6 +116,9 @@ actual testing of the module.
 
 Also, contrary to using `import` or `require`, if you lazy-load the same module at multiple places in your code, you will
 get different copies of the module.
+
+Be aware that lazy-loading uses the new `Proxy` feature from ES6, which cannot be polyfilled. This means that `Proxy` must
+be available in the JavaScript environment that runs your unit tests for `lazyLoad` to work.
 
 
 ## Documentation

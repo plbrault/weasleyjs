@@ -4,3 +4,4 @@ src/
 .gitignore
 test.js
 testModules
+.nvmrc

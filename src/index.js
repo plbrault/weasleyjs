@@ -1,4 +1,4 @@
-import { LazyLoadedObjectModule, LazyLoadedFunctionModule, LazyLoadedClassModule, WeasleyContainer } from './lib';
+import { LazyLoadedModule, WeasleyContainer } from './lib';
 
 /**
  * A tremendously simple dependency injection container for JavaScript.
@@ -69,29 +69,16 @@ export default class Weasley {
 }
 
 /**
- * @typedef {Object} LazyLoadResult
- * @property {Object} asObject - Allows access to the lazy-loaded module as an object.
- * @property {Object} asFunction - Allows access to the lazy-loaded module as a simple function.
- * @property {Object} asClass - Allows access to the lazy-loaded module for calling the `new`
- *                              operator on it.
- */
-
-/**
  * Lazy-load a module so that it will not actually be imported until it is used for the first time.
  * Useful during unit testing to override a module's dependency with a mock between the importation
  * and the actual testing.
- *
- * This function does not directly return a lazy-loaded module, but instead returns an object with
- * the following properties to access the actual module: `asObject` for when the lazy-loaded module
- * is an object, `asFunction` for when it is a function, and `asClass` for anything that you have
- * to call the `new` operator on.
  *
  * Be aware that the module will not be loaded from cache, so if you lazy-load the same module at
  * multiple places in your code, you will get different copies of the same module.
  *
  * Usage Example:
  * ```
- * const myAwesomeModule = lazyLoad(require.resolve('./myAwesomeModule')).asObject;
+ * const myAwesomeModule = lazyLoad(require.resolve('./myAwesomeModule'));
  * ```
  *
  * @function lazyLoad
@@ -104,25 +91,15 @@ export default class Weasley {
  *                                          `default` export is available, then it is that
  *                                          export that will be used. To avoid this behavior,
  *                                          pass '*' to this parameter.
- * @returns {LazyLoadResult}
+ * @returns The lazy-loaded module export.
  */
 export function lazyLoad(absolutePath, nameOfExport = 'default') {
   const resolver = () => {
     const cached = require.cache[absolutePath];
-    delete require.cache[absolutePath];
+    require.cache[absolutePath] = undefined;
     const module = require(absolutePath);
     require.cache[absolutePath] = cached;
     return module;
   };
-  return {
-    get asObject() {
-      return new LazyLoadedObjectModule(resolver, nameOfExport).proxy;
-    },
-    get asFunction() {
-      return new LazyLoadedFunctionModule(resolver, nameOfExport).proxy;
-    },
-    get asClass() {
-      return new LazyLoadedClassModule(resolver, nameOfExport).proxy;
-    },
-  };
+  return new LazyLoadedModule(resolver, nameOfExport).proxy;
 }

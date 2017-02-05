@@ -86,8 +86,7 @@ export class LazyLoadedModule {
         return Reflect.apply(target(), ctx, args);
       },
       construct(target, args) {
-        const Cls = target();
-        return Reflect.construct(Cls, args);
+        return Reflect.construct(target(), args);
       },
       defineProperty(target, key, descriptor) {
         return Reflect.defineProperty(target(), key, descriptor);
@@ -101,14 +100,29 @@ export class LazyLoadedModule {
       get(target, name) {
         return Reflect.get(target(), name);
       },
+      getOwnPropertyDescriptor(target, prop) {
+        return Reflect.getOwnPropertyDescriptor(target(), prop);
+      },
+      getPrototypeOf(target) {
+        return Reflect.getPrototypeOf(target());
+      },
       has(target, key) {
         return Reflect.has(target(), key);
+      },
+      isExtensible(target) {
+        return Reflect.isExtensible(target());
       },
       ownKeys(target) {
         return Reflect.ownKeys(target());
       },
+      preventExtensions(target) {
+        return Reflect.preventExtensions(target());
+      },
       set(target, name, value) {
         return Reflect.set(target(), name, value);
+      },
+      setPrototypeOf(target, prototype) {
+        return Reflect.setPrototypeOf(target(), prototype);
       },
     });
   }

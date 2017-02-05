@@ -33,8 +33,6 @@ multiple places in your code, you will get different copies of the same module.<
 * [Weasley](#Weasley)
     * [new Weasley()](#new_Weasley_new)
     * [.register(key, resolver, [nameOfExport])](#Weasley+register)
-    * [.snapshot()](#Weasley+snapshot)
-    * [.revert()](#Weasley+revert)
 
 <a name="new_Weasley_new"></a>
 
@@ -54,18 +52,6 @@ Register a new dependency.
 | resolver | <code>function</code> |  | A function that returns a module,                              e.g. () => require('./myAwesomeDependency'). |
 | [nameOfExport] | <code>string</code> | <code>&quot;default&quot;</code> | The name of the module's export to use as the                                          dependency.                                          If no value is provided for this parameter, and a                                          `default` export is available, then it is that                                          export that will be used. To avoid this behavior,                                          pass '*' to this parameter. |
 
-<a name="Weasley+snapshot"></a>
-
-### weasley.snapshot()
-Take a snapshot of the current dependency tree, so that you can revert back to it later.
-
-**Kind**: instance method of <code>[Weasley](#Weasley)</code>  
-<a name="Weasley+revert"></a>
-
-### weasley.revert()
-Revert to the last dependency tree snapshot.
-
-**Kind**: instance method of <code>[Weasley](#Weasley)</code>  
 <a name="lazyLoad"></a>
 
 ## lazyLoad(absolutePath, [nameOfExport]) ⇒

@@ -82,36 +82,36 @@ export class LazyLoadedModule {
       return module;
     };
     this.proxy = new Proxy(this.getModule, {
-      get(target, name) {
-        return target()[name];
-      },
-      set(target, name, value) {
-        target()[name] = value; // eslint-disable-line no-param-reassign
-        return true;
-      },
-      has(target, key) {
-        return key in target();
-      },
-      deleteProperty(target, key) {
-        delete target()[key];  // eslint-disable-line no-param-reassign
-        return true;
-      },
-      defineProperty(target, key, descriptor) {
-        Object.defineProperty(target(), key, descriptor);
-        return true;
-      },
-      enumerate(target) {
-        return Object.keys(target())[Symbol.iterator]();
-      },
-      ownKeys(target) {
-        return Reflect.ownKeys(target());
-      },
       apply(target, ctx, args) {
         return Reflect.apply(target(), ctx, args);
       },
       construct(target, args) {
         const Cls = target();
         return Reflect.construct(Cls, args);
+      },
+      defineProperty(target, key, descriptor) {
+        Object.defineProperty(target(), key, descriptor);
+        return true;
+      },
+      deleteProperty(target, key) {
+        delete target()[key];  // eslint-disable-line no-param-reassign
+        return true;
+      },
+      enumerate(target) {
+        return Object.keys(target())[Symbol.iterator]();
+      },
+      get(target, name) {
+        return target()[name];
+      },
+      has(target, key) {
+        return key in target();
+      },
+      ownKeys(target) {
+        return Reflect.ownKeys(target());
+      },
+      set(target, name, value) {
+        target()[name] = value; // eslint-disable-line no-param-reassign
+        return true;
       },
     });
   }

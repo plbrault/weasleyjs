@@ -90,28 +90,25 @@ export class LazyLoadedModule {
         return Reflect.construct(Cls, args);
       },
       defineProperty(target, key, descriptor) {
-        Object.defineProperty(target(), key, descriptor);
-        return true;
+        return Reflect.defineProperty(target(), key, descriptor);
       },
       deleteProperty(target, key) {
-        delete target()[key];  // eslint-disable-line no-param-reassign
-        return true;
+        return Reflect.deleteProperty(target(), key);
       },
       enumerate(target) {
         return Object.keys(target())[Symbol.iterator]();
       },
       get(target, name) {
-        return target()[name];
+        return Reflect.get(target(), name);
       },
       has(target, key) {
-        return key in target();
+        return Reflect.has(target(), key);
       },
       ownKeys(target) {
         return Reflect.ownKeys(target());
       },
       set(target, name, value) {
-        target()[name] = value; // eslint-disable-line no-param-reassign
-        return true;
+        return Reflect.set(target(), name, value);
       },
     });
   }

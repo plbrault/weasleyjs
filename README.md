@@ -67,7 +67,7 @@ import { lazyLoad } from 'weasley';
 import weasley from './weasley.js';
 
 // Lazy-load the module to be tested
-const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js'));
+const awesomeModule = lazyLoad(require.resolve('./awesomeModule.js'), '*');
 
 // Create a mock for a dependency of the module
 const myAwesomeMock = {

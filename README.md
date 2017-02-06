@@ -2,10 +2,11 @@ WeasleyJS
 =================================================================================================
 
 This is a JavaScript dependency injection container so tremendously simple, it might actually not
-deserve to be called a dependency injection container. It serves at least two purposes:
+deserve to be called a dependency injection container. It serves at least three purposes:
 
-  1) Avoiding direct coupling between modules and their dependencies  
-  2) Making everything easily mockable for testing  
+  1) Avoiding direct coupling between modules and their dependencies;  
+  2) Being able to easily swap dependencies programmatically;  
+  3) Making everything easily mockable for testing.  
 
 This is a work in progress, and might still contain a few bugs. Be aware that future releases might
 not follow strict [semver](http://semver.org/) until version `1.0.0` is reached.

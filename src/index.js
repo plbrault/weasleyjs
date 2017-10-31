@@ -1,6 +1,12 @@
 import { LazyLoadedModule, WeasleyContainer } from './lib';
 
 /**
+ * We cannot use require directly for dynamic imports because of an issue with React Native 0.49
+ * Reference: https://github.com/facebook/metro-bundler/issues/65
+ */
+const requireFn = require;
+
+/**
  * A tremendously simple dependency injection container for JavaScript.
  * @class Weasley
  * @property {Object} container - Provides access to the dependency tree. For instance, to access
@@ -75,7 +81,7 @@ export function lazyLoad(absolutePath, nameOfExport = 'default') {
   const resolver = () => {
     const cached = require.cache[absolutePath];
     require.cache[absolutePath] = undefined;
-    const module = require(absolutePath);
+    const module = requireFn(absolutePath);
     require.cache[absolutePath] = cached;
     return module;
   };

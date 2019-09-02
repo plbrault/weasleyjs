@@ -1,23 +1,25 @@
-WeasleyJS
-=================================================================================================
+# WeasleyJS
 
-This is a JavaScript dependency injection container so tremendously simple, it might actually not
-deserve to be called a dependency injection container. It serves at least three purposes:
+This is a simple JavaScript dependency registry (or service locator) that serves at least two purposes:
 
-  * Avoiding direct coupling between modules and their dependencies;  
-  * Being able to easily swap dependencies programmatically;  
-  * Making everything easily mockable for testing.  
+* Being able to easily swap dependencies programmatically;  
+* Making everything easily mockable for testing.
 
-This is a work in progress, and might still contain a few bugs. Be aware that future releases might
-not follow strict [semver](http://semver.org/) until version `1.0.0` is reached.
-
+Beware that using a service locator may be an anti-pattern (as opposed to proper dependency injection).
+That being said, feel free to use this package if it suits your needs and you are okay with the possible
+drawbacks of this approach.
 
 ## Setup
 
-```
-npm install weasley
+```bash
+npm install --save weasley
 ```
 
+or
+
+```bash
+yarn add weasley
+```
 
 ## Example
 
@@ -87,7 +89,6 @@ describe('awesomeModule', function () {
 });
 ```
 
-
 ## Lazy-loading vs import/require
 
 When using `lazyLoad` to import a module, it is not actually imported until it is used for the first time. For instance:
@@ -106,14 +107,12 @@ actual testing of the module.
 Also, contrary to using `import` or `require`, if you lazy-load the same module at multiple places in your code, you will
 get different copies of the module.
 
-Be aware that lazy-loading uses the new `Proxy` feature from ES6, which cannot be polyfilled. This means that `Proxy` must
+Be aware that lazy-loading uses the `Proxy` feature from ES6, which cannot be polyfilled. This means that `Proxy` must
 be available in the JavaScript environment that runs your unit tests for `lazyLoad` to work.
-
 
 ## Documentation
 
 Complete documentation is available [here](https://github.com/plbrault/weasleyjs/blob/master/docs/jsdoc.md).
-
 
 ## License
 
